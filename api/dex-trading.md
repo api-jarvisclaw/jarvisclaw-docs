@@ -2,18 +2,15 @@
 
 Decentralized exchange trading via 0x protocol. Best-execution routing across 100+ DEXes with Permit2 and Gasless V2. **FREE for all callers** — you only pay on-chain gas fees.
 
-**Base URL:** `https://api.jarvisclaw.ai/v1/marketplace/dex`
+## Base URL
+
+```
+https://api.jarvisclaw.ai/v1/marketplace/dex
+```
 
 ## Pricing
 
-| Endpoint | Price | Notes |
-|----------|-------|-------|
-| GET /price | Free | Indicative only, no commitment |
-| GET /quote | Free | Firm quote with tx calldata |
-| POST /gasless/submit | Free | Relayer pays gas on your behalf |
-| GET /gasless/status/:tradeHash | Free | Poll swap status |
-
-All DEX endpoints are free. No JarvisClaw fees — only standard on-chain gas costs for submitted transactions. Gasless swaps eliminate even gas fees for supported tokens.
+**All DEX endpoints are free.** No JarvisClaw fees — only standard on-chain gas costs for submitted transactions. Gasless swaps eliminate even gas fees for supported tokens.
 
 ## Supported Chains
 
@@ -27,18 +24,20 @@ All DEX endpoints are free. No JarvisClaw fees — only standard on-chain gas co
 
 ## Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/price` | Indicative swap price (no commitment) |
-| GET | `/quote` | Firm quote with calldata + Permit2 signature data |
-| POST | `/gasless/submit` | Submit a signed gasless swap |
-| GET | `/gasless/status/:tradeHash` | Track gasless swap status |
+| Method | Endpoint | Description | Price |
+|--------|----------|-------------|-------|
+| GET | `/price` | Indicative swap price (no commitment) | Free |
+| GET | `/quote` | Firm quote with calldata + Permit2 data | Free |
+| POST | `/gasless/submit` | Submit a signed gasless swap | Free |
+| GET | `/gasless/status/:tradeHash` | Track gasless swap status | Free |
 
 ---
 
-## GET /price
+## Get Price
 
-Get an indicative price for a token swap without committing. Use this for UI display or pre-trade checks.
+`GET /v1/marketplace/dex/price`
+
+Get an indicative price for a token swap without committing. Use for UI display or pre-trade checks.
 
 ### Parameters
 
@@ -48,24 +47,34 @@ Get an indicative price for a token swap without committing. Use this for UI dis
 | `buyToken` | string | Yes | Token contract address to buy |
 | `sellAmount` | string | Yes | Amount to sell in base units (e.g., `1000000` = 1 USDC) |
 | `chainId` | integer | Yes | Target chain ID |
+| `taker` | string | No | Taker wallet address (improves routing) |
+
 
 ### Response
 
 ```json
 {
-  "price": "2594.12",
-  "buyAmount": "2594120000",
-  "sellAmount": "1000000000000000000",
+  "chainId": 8453,
+  "sellToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "buyToken": "0x4200000000000000000000000000000000000006",
+  "sellAmount": "1000000000",
+  "buyAmount": "385000000000000000",
+  "price": "0.000385",
   "sources": [
-    { "name": "Uniswap_V3", "proportion": "0.8" },
-    { "name": "Aerodrome", "proportion": "0.2" }
-  ]
+    { "name": "Uniswap_V3", "proportion": "0.75" },
+    { "name": "Aerodrome", "proportion": "0.25" }
+  ],
+  "estimatedGas": "145000",
+  "gasPrice": "50000000"
 }
 ```
 
+
 ---
 
-## GET /quote
+## Get Quote
+
+`GET /v1/marketplace/dex/quote`
 
 Get a firm quote with transaction calldata ready for signing. Includes EIP-712 typed data for Permit2 gasless swaps.
 
@@ -83,12 +92,27 @@ Get a firm quote with transaction calldata ready for signing. Includes EIP-712 t
 
 ```json
 {
-  "price": "2594.12",
-  "buyAmount": "2594120000",
-  "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
-  "data": "0x...",
-  "value": "1000000000000000000",
-  "gas": "210000"
+  "chainId": 8453,
+  "sellToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "buyToken": "0x4200000000000000000000000000000000000006",
+  "sellAmount": "1000000000",
+  "buyAmount": "384500000000000000",
+  "to": "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+  "data": "0x415565b0000000000000000000...",
+  "value": "0",
+  "gas": "185000",
+  "gasPrice": "50000000",
+  "permit2": {
+    "type": "Permit2",
+    "hash": "0x1234abcd...",
+    "eip712": {
+      "types": { "...": "..." },
+      "domain": { "...": "..." },
+      "message": { "...": "..." },
+      "primaryType": "PermitWitnessTransferFrom"
+    }
+  },
+  "validTo": 1717243800
 }
 ```
 
@@ -96,40 +120,56 @@ Get a firm quote with transaction calldata ready for signing. Includes EIP-712 t
 Quotes are valid for **30 seconds**. After expiry, you must request a new quote.
 :::
 
+
 ---
 
-## POST /gasless/submit
+## Submit Gasless Swap
+
+`POST /v1/marketplace/dex/gasless/submit`
 
 Submit a signed gasless swap. The relayer pays gas on your behalf — the taker pays nothing beyond the swap amount.
 
-### Request Body
+### Request
+
+```json
+{
+  "trade": {
+    "chainId": 8453,
+    "sellToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "buyToken": "0x4200000000000000000000000000000000000006",
+    "sellAmount": "1000000000",
+    "buyAmount": "384500000000000000",
+    "to": "0xDef1C0ded9bec7F1a1670819833240f027b25EfF",
+    "data": "0x415565b0...",
+    "permit2": { "...": "..." }
+  },
+  "signature": "0xabcdef1234567890..."
+}
+```
+
+### Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `trade` | object | Yes | Full quote object from `/quote` response |
 | `signature` | string | Yes | EIP-712 signature from taker wallet |
 
-### Request
-
-```json
-{
-  "trade": { "...full quote object..." },
-  "signature": "0xabcdef1234567890..."
-}
-```
-
 ### Response
 
 ```json
 {
-  "tradeHash": "0xdef456...",
-  "status": "submitted"
+  "tradeHash": "0x9f8e7d6c5b4a3210...",
+  "status": "submitted",
+  "createdAt": "2025-06-01T15:30:00Z"
 }
 ```
 
+
 ---
 
-## GET /gasless/status/:tradeHash
+## Track Gasless Swap Status
+
+`GET /v1/marketplace/dex/gasless/status/:tradeHash`
 
 Poll the status of a submitted gasless swap.
 
@@ -143,9 +183,11 @@ Poll the status of a submitted gasless swap.
 
 ```json
 {
-  "tradeHash": "0xdef456...",
+  "tradeHash": "0x9f8e7d6c5b4a3210...",
   "status": "confirmed",
-  "txHash": "0x789abc..."
+  "txHash": "0xabc123def456...",
+  "blockNumber": 18500000,
+  "gasUsed": "142000"
 }
 ```
 
@@ -153,17 +195,26 @@ Status values: `submitted`, `pending`, `confirmed`, `failed`
 
 ---
 
-## Code Examples
+## Examples
 
 ::: code-group
 
 ```bash [cURL]
-# Get indicative price (1 ETH -> USDC on Ethereum mainnet)
-curl "https://api.jarvisclaw.ai/v1/marketplace/dex/price?sellToken=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&buyToken=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&sellAmount=1000000000000000000&chainId=1" \
+# Get indicative price (1000 USDC -> WETH on Base)
+curl "https://api.jarvisclaw.ai/v1/marketplace/dex/price?\
+chainId=8453&\
+sellToken=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&\
+buyToken=0x4200000000000000000000000000000000000006&\
+sellAmount=1000000000" \
   -H "Authorization: Bearer sk-your-api-key"
 
 # Get firm quote (requires takerAddress)
-curl "https://api.jarvisclaw.ai/v1/marketplace/dex/quote?sellToken=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&buyToken=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&sellAmount=1000000000000000000&chainId=1&takerAddress=0xYourWalletAddress" \
+curl "https://api.jarvisclaw.ai/v1/marketplace/dex/quote?\
+chainId=8453&\
+sellToken=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&\
+buyToken=0x4200000000000000000000000000000000000006&\
+sellAmount=1000000000&\
+takerAddress=0xYourWalletAddress" \
   -H "Authorization: Bearer sk-your-api-key"
 
 # Submit gasless swap
@@ -176,7 +227,7 @@ curl -X POST https://api.jarvisclaw.ai/v1/marketplace/dex/gasless/submit \
   }'
 
 # Check gasless swap status
-curl "https://api.jarvisclaw.ai/v1/marketplace/dex/gasless/status/0xdef456" \
+curl "https://api.jarvisclaw.ai/v1/marketplace/dex/gasless/status/0x9f8e7d6c5b4a3210" \
   -H "Authorization: Bearer sk-your-api-key"
 ```
 
@@ -187,32 +238,30 @@ import time
 BASE = "https://api.jarvisclaw.ai/v1/marketplace/dex"
 HEADERS = {"Authorization": "Bearer sk-your-api-key"}
 
-# Token addresses on Ethereum mainnet
-WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+# Token addresses on Base
+USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+WETH_BASE = "0x4200000000000000000000000000000000000006"
 
-# 1. Get indicative price for 1 ETH -> USDC
+# 1. Get indicative price for 1000 USDC -> WETH
 resp = requests.get(f"{BASE}/price", headers=HEADERS, params={
-    "chainId": 1,
-    "sellToken": WETH,
-    "buyToken": USDC,
-    "sellAmount": "1000000000000000000",  # 1 ETH (18 decimals)
+    "chainId": 8453,
+    "sellToken": USDC_BASE,
+    "buyToken": WETH_BASE,
+    "sellAmount": "1000000000",  # 1000 USDC (6 decimals)
 })
 price = resp.json()
-print(f"Price: {price['price']} USDC per ETH")
-print(f"Buy amount: {price['buyAmount']} (raw USDC units)")
+print(f"Buy amount: {price['buyAmount']} wei WETH")
 print(f"Routed via: {[s['name'] for s in price['sources']]}")
 
 # 2. Get firm quote
 resp = requests.get(f"{BASE}/quote", headers=HEADERS, params={
-    "chainId": 1,
-    "sellToken": WETH,
-    "buyToken": USDC,
-    "sellAmount": "1000000000000000000",
+    "chainId": 8453,
+    "sellToken": USDC_BASE,
+    "buyToken": WETH_BASE,
+    "sellAmount": "1000000000",
     "takerAddress": "0xYourWalletAddress",
 })
 quote = resp.json()
-print(f"Gas estimate: {quote['gas']}")
 
 # 3. Sign the EIP-712 permit2 data (requires eth_account)
 # signature = sign_eip712(quote["permit2"]["eip712"], private_key)
@@ -223,7 +272,6 @@ resp = requests.post(f"{BASE}/gasless/submit", headers=HEADERS, json={
     "signature": "0x<your-eip712-signature>",
 })
 trade_hash = resp.json()["tradeHash"]
-print(f"Submitted: {trade_hash}")
 
 # 5. Poll status
 while True:
@@ -239,108 +287,118 @@ while True:
 ```
 
 ```python [Python (x402 Agent)]
-from jarvisclaw import MarketplaceClient
+from jarvisclaw import Client
 
-# --- Option A: Base chain (EVM) ---
-# Hex private key -> USDC on Base (Chain ID 8453)
-client = MarketplaceClient(private_key="0x<evm-private-key>")
+# x402 agent — pays with USDC automatically (DEX endpoints are free anyway)
+client = Client(private_key="0x<agent-wallet-private-key>")
 
-# --- Option B: Solana ---
-# Base58 keypair -> USDC SPL on Solana mainnet
-# client = MarketplaceClient(private_key="<solana-bs58-keypair>")
+USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+WETH_BASE = "0x4200000000000000000000000000000000000006"
 
-# SDK auto-detects chain from key format - no config needed
-
-WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-
-# Get indicative price (free — no payment triggered)
-price = client.dex_price(
-    chain_id=1,
-    sell_token=WETH,
-    buy_token=USDC,
-    sell_amount="1000000000000000000",
-)
-print(f"Price: {price.price} USDC per ETH")
-print(f"Sources: {[s.name for s in price.sources]}")
+# Get price (free — no payment triggered)
+price = client.get("/v1/marketplace/dex/price", params={
+    "chainId": 8453,
+    "sellToken": USDC_BASE,
+    "buyToken": WETH_BASE,
+    "sellAmount": "1000000000",
+})
+print(f"Price: {price['buyAmount']} wei for 1000 USDC")
 
 # Get firm quote
-quote = client.dex_quote(
-    chain_id=1,
-    sell_token=WETH,
-    buy_token=USDC,
-    sell_amount="1000000000000000000",
-    taker_address="0xYourWalletAddress",
-)
-print(f"Gas: {quote.gas}")
+quote = client.get("/v1/marketplace/dex/quote", params={
+    "chainId": 8453,
+    "sellToken": USDC_BASE,
+    "buyToken": WETH_BASE,
+    "sellAmount": "1000000000",
+    "takerAddress": "0xYourWalletAddress",
+})
 
-# Submit gasless swap (after signing permit2 externally)
-result = client.dex_gasless_submit(trade=quote, signature="0x<signed-permit2>")
-print(f"Trade hash: {result.trade_hash}")
+# Submit gasless (after signing permit2 externally)
+result = client.post("/v1/marketplace/dex/gasless/submit", json={
+    "trade": quote,
+    "signature": "0x<signed-permit2>",
+})
+print(f"Trade hash: {result['tradeHash']}")
 
 # Poll status
-status = client.dex_gasless_status(result.trade_hash)
-print(f"Status: {status.status}")
-if status.status == "confirmed":
-    print(f"TX: {status.tx_hash}")
+status = client.get(f"/v1/marketplace/dex/gasless/status/{result['tradeHash']}")
+print(f"Status: {status['status']}")
 ```
 
 ```go [Go (API Key)]
 package main
 
 import (
-    "context"
     "fmt"
     "time"
 
-    jc "github.com/api-jarvisclaw/go-sdk"
+    jarvisclaw "github.com/api-jarvisclaw/go-sdk"
 )
 
 func main() {
-    ctx := context.Background()
-    mc, _ := jc.NewMarketplaceClient(jc.WithAPIKey("sk-your-api-key"))
+    client := jarvisclaw.NewClient(jarvisclaw.WithAPIKey("sk-your-api-key"))
 
-    weth := "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-    usdc := "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    usdcBase := "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    wethBase := "0x4200000000000000000000000000000000000006"
 
     // 1. Get indicative price
-    price, _ := mc.DexPrice(ctx, &jc.DexPriceRequest{
-        ChainID:    1,
-        SellToken:  weth,
-        BuyToken:   usdc,
-        SellAmount: "1000000000000000000",
-    })
-    fmt.Printf("Price: %s USDC/ETH\n", price.Price)
-    fmt.Printf("Buy amount: %s\n", price.BuyAmount)
+    var price struct {
+        BuyAmount    string `json:"buyAmount"`
+        SellAmount   string `json:"sellAmount"`
+        EstimatedGas string `json:"estimatedGas"`
+    }
+    err := client.GetJSON("/v1/marketplace/dex/price", map[string]string{
+        "chainId":    "8453",
+        "sellToken":  usdcBase,
+        "buyToken":   wethBase,
+        "sellAmount": "1000000000",
+    }, &price)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Buy amount: %s wei\n", price.BuyAmount)
 
     // 2. Get firm quote
-    quote, _ := mc.DexQuote(ctx, &jc.DexQuoteRequest{
-        ChainID:      1,
-        SellToken:    weth,
-        BuyToken:     usdc,
-        SellAmount:   "1000000000000000000",
-        TakerAddress: "0xYourWalletAddress",
-    })
-    fmt.Printf("Gas: %s\n", quote.Gas)
+    var quote map[string]interface{}
+    err = client.GetJSON("/v1/marketplace/dex/quote", map[string]string{
+        "chainId":      "8453",
+        "sellToken":    usdcBase,
+        "buyToken":     wethBase,
+        "sellAmount":   "1000000000",
+        "takerAddress": "0xYourWalletAddress",
+    }, &quote)
+    if err != nil {
+        panic(err)
+    }
 
     // 3. Sign permit2 EIP-712 data and submit gasless swap
-    // signature := signEIP712(quote.Permit2, privateKey)
+    // signature := signEIP712(quote["permit2"], privateKey)
 
-    result, _ := mc.DexGaslessSubmit(ctx, &jc.DexGaslessSubmitRequest{
-        Trade:     quote,
-        Signature: "0x<your-eip712-signature>",
-    })
-    fmt.Printf("Trade hash: %s\n", result.TradeHash)
+    var submit struct {
+        TradeHash string `json:"tradeHash"`
+        Status    string `json:"status"`
+    }
+    err = client.PostJSON("/v1/marketplace/dex/gasless/submit", map[string]interface{}{
+        "trade":     quote,
+        "signature": "0x<your-eip712-signature>",
+    }, &submit)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Trade hash: %s\n", submit.TradeHash)
 
     // 4. Poll status
     for {
-        status, _ := mc.DexGaslessStatus(ctx, result.TradeHash)
+        var status struct {
+            Status string `json:"status"`
+            TxHash string `json:"txHash"`
+        }
+        _ = client.GetJSON(
+            fmt.Sprintf("/v1/marketplace/dex/gasless/status/%s", submit.TradeHash),
+            nil, &status,
+        )
         if status.Status == "confirmed" {
             fmt.Printf("Confirmed! TX: %s\n", status.TxHash)
-            break
-        }
-        if status.Status == "failed" {
-            fmt.Println("Swap failed")
             break
         }
         time.Sleep(2 * time.Second)
@@ -352,50 +410,55 @@ func main() {
 package main
 
 import (
-    "context"
     "fmt"
 
-    jc "github.com/api-jarvisclaw/go-sdk"
+    jarvisclaw "github.com/api-jarvisclaw/go-sdk"
 )
 
 func main() {
-    ctx := context.Background()
+    // x402 agent — DEX endpoints are free, but x402 auth still works
+    client, err := jarvisclaw.NewClient(
+        jarvisclaw.WithPrivateKey("0x<agent-wallet-private-key>"),
+    )
+    if err != nil {
+        panic(err)
+    }
 
-    // x402 Agent wallet — pays per-call via USDC on Base
-    // DEX endpoints are free, but x402 auth still works
-    mc, _ := jc.NewMarketplaceClient(jc.WithPrivateKey("0x<evm-private-key>"))
-
-    weth := "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-    usdc := "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    usdcBase := "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    wethBase := "0x4200000000000000000000000000000000000006"
 
     // Get price
-    price, _ := mc.DexPrice(ctx, &jc.DexPriceRequest{
-        ChainID:    1,
-        SellToken:  weth,
-        BuyToken:   usdc,
-        SellAmount: "1000000000000000000",
-    })
-    fmt.Printf("1 ETH -> %s USDC\n", price.BuyAmount)
+    var price struct {
+        BuyAmount string `json:"buyAmount"`
+        Price     string `json:"price"`
+    }
+    _ = client.GetJSON("/v1/marketplace/dex/price", map[string]string{
+        "chainId":    "8453",
+        "sellToken":  usdcBase,
+        "buyToken":   wethBase,
+        "sellAmount": "1000000000",
+    }, &price)
+    fmt.Printf("1000 USDC -> %s wei WETH\n", price.BuyAmount)
 
     // Get quote
-    quote, _ := mc.DexQuote(ctx, &jc.DexQuoteRequest{
-        ChainID:      1,
-        SellToken:    weth,
-        BuyToken:     usdc,
-        SellAmount:   "1000000000000000000",
-        TakerAddress: "0xYourWalletAddress",
-    })
+    var quote map[string]interface{}
+    _ = client.GetJSON("/v1/marketplace/dex/quote", map[string]string{
+        "chainId":      "8453",
+        "sellToken":    usdcBase,
+        "buyToken":     wethBase,
+        "sellAmount":   "1000000000",
+        "takerAddress": "0xYourWalletAddress",
+    }, &quote)
 
     // Sign + submit gasless swap
-    result, _ := mc.DexGaslessSubmit(ctx, &jc.DexGaslessSubmitRequest{
-        Trade:     quote,
-        Signature: "0x<signed-permit2>",
-    })
+    var result struct {
+        TradeHash string `json:"tradeHash"`
+    }
+    _ = client.PostJSON("/v1/marketplace/dex/gasless/submit", map[string]interface{}{
+        "trade":     quote,
+        "signature": "0x<signed-permit2>",
+    }, &result)
     fmt.Printf("Submitted: %s\n", result.TradeHash)
-
-    // Check status
-    status, _ := mc.DexGaslessStatus(ctx, result.TradeHash)
-    fmt.Printf("Status: %s\n", status.Status)
 }
 ```
 
@@ -405,23 +468,15 @@ func main() {
 
 ## Errors
 
-| HTTP Code | Error Code | Description | Resolution |
-|-----------|------------|-------------|------------|
-| 400 | `insufficient_liquidity` | Not enough liquidity across available DEXes | Reduce sellAmount or try a different token pair |
-| 400 | `unsupported_chain` | Chain ID not in supported list | Use supported chain: 1, 8453, 137, 42161, or 10 |
-| 410 | `price_expired` | Quote expired (~30s lifetime) | Request a fresh quote |
-| 400 | `invalid_token` | Token address not recognized on specified chain | Verify the contract address on the target chain |
-
-### Error Response Format
-
-```json
-{
-  "error": {
-    "code": "insufficient_liquidity",
-    "message": "Not enough liquidity for 1000000000 sellToken across available DEX sources on chain 8453."
-  }
-}
-```
+| Code | Error | Description |
+|------|-------|-------------|
+| 400 | `insufficient_liquidity` | Not enough liquidity across available DEXes for this trade |
+| 400 | `unsupported_chain` | Chain ID not in supported list (1, 8453, 137, 42161, 10) |
+| 410 | `price_expired` | Quote expired (30s lifetime) — request a new one |
+| 400 | `invalid_token` | Token address is not a valid contract on the specified chain |
+| 400 | `invalid_amount` | Sell amount is zero or exceeds token supply |
+| 400 | `invalid_signature` | EIP-712 signature verification failed |
+| 404 | `trade_not_found` | Unknown tradeHash in gasless status check |
 
 ---
 
@@ -434,3 +489,4 @@ func main() {
 - **Price impact on large trades** — Swaps over $100k may experience significant slippage due to DEX liquidity depth
 - **Token addresses required** — Use contract addresses, not symbols; verify addresses on the target chain
 - **Base units only** — All amounts are in the token's smallest denomination (6 decimals for USDC, 18 for ETH/WETH)
+- **No partial fills** — Entire trade executes or reverts; no partial execution
