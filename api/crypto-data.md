@@ -4,6 +4,10 @@
 
 **Base URL:** `https://api.jarvisclaw.ai/v1/marketplace/surf`
 
+::: tip Dedicated Prediction Markets API
+This page includes 17 prediction market endpoints via Surf. If you primarily need prediction data, consider the dedicated [Prediction Markets (Predexon)](/api/prediction-markets) service — 58 endpoints, deeper data (orderbooks, candlesticks, leaderboards, arbitrage), and lower pricing ($0.001/call vs $0.0075/call).
+:::
+
 ## Pricing
 
 | Tier | Price | Includes |
