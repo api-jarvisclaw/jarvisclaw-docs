@@ -27,6 +27,7 @@ export default defineConfig({
         text: 'SDK',
         items: [
           { text: 'Python & Go SDK', link: '/sdk' },
+          { text: 'Framework Integrations', link: '/frameworks' },
           { text: 'Async & Concurrent', link: '/async' },
         ],
       },
