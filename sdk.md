@@ -69,6 +69,42 @@ JARVISCLAW_PRIVATE_KEY=0x...
 ```
 :::
 
+### Timeout & Cancellation
+
+All clients support a `timeout` parameter (in seconds). The server holds the upstream connection open for at most this duration — if the model hasn't finished by then, the request is cancelled server-side.
+
+::: code-group
+
+```python [Python]
+from jarvisclaw import ChatClient
+
+# Default timeout is 120s; override per-client or per-call
+chat = ChatClient(api_key="sk-...", timeout=300)
+
+# Per-call override
+response = chat.complete("Summarize this book...", timeout=600)
+```
+
+```go [Go]
+// Use context deadline — the SDK forwards it to the server
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+defer cancel()
+
+text, _ := client.Complete(ctx, "Summarize this book...")
+```
+
+:::
+
+| timeout 值 | 行为 |
+|-----------|------|
+| `timeout=120` | 服务端最多等 120 秒 |
+| `timeout=300` | 服务端最多等 300 秒 |
+| 客户端断开连接 | 上游请求自动取消，不产生费用 |
+
+::: tip
+对于长时间生成任务（video、music），SDK 内部已设置合理的默认超时（video 默认 900s）。一般只需在 chat completion 场景按需调整。
+:::
+
 ### Authentication & Chain Support
 
 | Client | API Key | Private Key (x402) | Python 链支持 | Go 链支持 |
