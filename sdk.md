@@ -95,26 +95,26 @@ text, _ := client.Complete(ctx, "Summarize this book...")
 
 :::
 
-| timeout 值 | 行为 |
-|-----------|------|
-| `timeout=120` | 服务端最多等 120 秒 |
-| `timeout=300` | 服务端最多等 300 秒 |
-| 客户端断开连接 | 上游请求自动取消，不产生费用 |
+| Timeout | Behavior |
+|---------|----------|
+| `timeout=120` | Server waits up to 120 seconds |
+| `timeout=300` | Server waits up to 300 seconds |
+| Client disconnects | Upstream request auto-cancelled, no charge |
 
 ::: tip
-对于长时间生成任务（video、music），SDK 内部已设置合理的默认超时（video 默认 900s）。一般只需在 chat completion 场景按需调整。
+For long-running tasks (video, music), the SDK sets sensible defaults internally (video defaults to 900s). You typically only need to adjust timeout for chat completions.
 :::
 
 ### Authentication & Chain Support
 
-| Client | API Key | Private Key (x402) | Python 链支持 | Go 链支持 |
-|--------|---------|-------------------|--------------|----------|
+| Client | API Key | Private Key (x402) | Python Chains | Go Chains |
+|--------|---------|-------------------|---------------|-----------|
 | ChatClient | ✅ | ✅ | Base + Solana | Base only |
 | ImageClient | ✅ | ✅ | Base + Solana | Base only |
 | VideoClient | ✅ | ✅ | Base + Solana | Base only |
 | AudioClient | ✅ | ✅ | Base + Solana | Base only |
 | SearchClient | ✅ | ✅ | Base + Solana | Base only |
-| MarketplaceClient | ❌ | ✅ 仅 private key | Base + Solana | Base only |
+| MarketplaceClient | ❌ | ✅ Private key only | Base + Solana | Base only |
 
 ## Chat & Streaming
 
@@ -630,7 +630,7 @@ from jarvisclaw.aio import MarketplaceClient
 
 async def main():
     async with MarketplaceClient(private_key="0x...") as mp:
-        # 并发调用多个 marketplace 接口
+        # Concurrent calls to multiple marketplace endpoints
         polymarket, btc_price, fear_greed = await asyncio.gather(
             mp.call("prediction", "/polymarket/markets",
                     params={"market_slug": "will-trump-win"}),
@@ -640,7 +640,7 @@ async def main():
         )
         print(polymarket, btc_price, fear_greed)
 
-        # 并发 RPC 调用
+        # Concurrent RPC calls
         eth_block, sol_slot = await asyncio.gather(
             mp.rpc_call("eth", "eth_blockNumber"),
             mp.rpc_call("sol", "getSlot"),

@@ -48,8 +48,8 @@ chat = ChatClient(private_key="<key>", network="solana")
 ```
 
 ```go [Go]
-// ⚠️ Coming Soon — Go SDK 暂未支持 Solana，以下为预期 API 预览。
-// 目前 Go 仅支持 Base chain (EVM)。
+// ⚠️ Coming Soon — Go SDK does not yet support Solana. Code below is an API preview.
+// Go currently supports Base chain (EVM) only.
 
 import jarvisclaw "github.com/api-jarvisclaw/go-sdk"
 
@@ -90,8 +90,8 @@ print(f"Solana wallet: {chat.address}")
 ```
 
 ```go [Go]
-// ⚠️ Coming Soon — Go SDK 暂未支持 Solana，以下为预期 API 预览。
-// 目前 Go 仅支持 Base chain (EVM)。
+// ⚠️ Coming Soon — Go SDK does not yet support Solana. Code below is an API preview.
+// Go currently supports Base chain (EVM) only.
 
 package main
 
