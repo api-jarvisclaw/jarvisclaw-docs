@@ -120,7 +120,7 @@ func main() {
     image, _ := jarvisclaw.NewImageClient(jarvisclaw.WithPrivateKey("0x..."))
 
     prompts := []string{"A cat", "A dog", "A bird"}
-    results := make([]*jarvisclaw.ImageResult, len(prompts))
+    results := make([]*jarvisclaw.ImageResponse, len(prompts))
 
     // Go's goroutines are native async — no special library needed
     var wg sync.WaitGroup

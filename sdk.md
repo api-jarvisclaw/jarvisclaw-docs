@@ -78,11 +78,12 @@ All clients support a `timeout` parameter (in seconds). The server holds the ups
 ```python [Python]
 from jarvisclaw import ChatClient
 
-# Default timeout is 120s; override per-client or per-call
+# Default timeout is 120s; override per-client
 chat = ChatClient(api_key="sk-...", timeout=300)
 
-# Per-call override
-response = chat.complete("Summarize this book...", timeout=600)
+# For long-running requests, set timeout at client level
+chat_long = ChatClient(api_key="sk-...", timeout=600)
+response = chat_long.complete("Summarize this book...")
 ```
 
 ```go [Go]
@@ -178,13 +179,13 @@ fmt.Println(text)
 resp, _ := client.Completion(ctx, []jarvisclaw.Message{
     {Role: "system", Content: "You are a helpful tutor."},
     {Role: "user", Content: "Explain gravity simply."},
-}, jarvisclaw.WithModel("auto"), jarvisclaw.WithTemperature(0.5))
+}, jarvisclaw.WithChatModel("auto"), jarvisclaw.WithTemperature(0.5))
 fmt.Println(resp.Content)
 fmt.Printf("Tokens used: %+v\n", resp.Usage)
 
 // Streaming — channel emits text chunks
 stream, _ := client.Stream(ctx, "Tell me a joke")
-for chunk := range stream {
+for chunk := range stream.Channel() {
     fmt.Print(chunk)
 }
 ```
@@ -248,17 +249,15 @@ asyncio.run(main())
 ```go [Go]
 client, _ := jarvisclaw.NewImageClient(jarvisclaw.WithPrivateKey("0x..."))
 
-// Blocking (default)
+// Generate image (blocking — returns when ready)
 img, _ := client.Generate(ctx, "A cat on Mars", jarvisclaw.WithSize("1024x1024"))
 fmt.Println(img.URL)
 
-// Non-blocking
-job, _ := client.Generate(ctx, "A city", jarvisclaw.WithWait(false))
-fmt.Printf("Job: %s\n", job.ID)
-
-// Wait later
-result, _ := client.Wait(ctx, job.ID)
-fmt.Println(result.URL)
+// With explicit model
+img, _ = client.Generate(ctx, "A city",
+    jarvisclaw.WithImageModel("openai/gpt-image-1"),
+    jarvisclaw.WithSize("1792x1024"))
+fmt.Println(img.URL)
 ```
 
 :::
@@ -412,13 +411,13 @@ asyncio.run(main())
 ```go [Go]
 client, _ := jarvisclaw.NewAudioClient(jarvisclaw.WithAPIKey("sk-..."))
 
-// Text-to-Speech
-data, _ := client.Speech(ctx, "Hello world", jarvisclaw.WithVoice("alloy"))
-os.WriteFile("output.mp3", data.Content, 0644)
+// Text-to-Speech (returns raw audio bytes)
+result, _ := client.Speech(ctx, "Hello world", jarvisclaw.WithVoice("alloy"))
+os.WriteFile("output.mp3", result.Data, 0644)
 
-// Music generation (blocking, 1-3 min)
+// Music generation (returns URL)
 music, _ := client.Music(ctx, "An upbeat electronic track")
-os.WriteFile("music.mp3", music.Content, 0644)
+fmt.Printf("Music URL: %s\n", music.URL)
 ```
 
 :::
@@ -655,7 +654,6 @@ package main
 
 import (
     "context"
-    "encoding/json"
     "fmt"
     "sync"
 
@@ -667,7 +665,7 @@ func main() {
     mc, _ := jarvisclaw.NewMarketplaceClient(jarvisclaw.WithPrivateKey("0x..."))
 
     var (
-        polymarket, btcPrice, fearGreed json.RawMessage
+        polymarket, btcPrice, fearGreed map[string]any
         wg                              sync.WaitGroup
     )
 
@@ -688,7 +686,7 @@ func main() {
     }()
     wg.Wait()
 
-    fmt.Println(string(polymarket), string(btcPrice), string(fearGreed))
+    fmt.Println(polymarket, btcPrice, fearGreed)
 }
 ```
 

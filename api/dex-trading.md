@@ -337,7 +337,7 @@ import (
 )
 
 func main() {
-    mc := jarvisclaw.NewMarketplaceClient(jarvisclaw.WithAPIKey("sk-your-api-key"))
+    mc, _ := jarvisclaw.NewMarketplaceClient(jarvisclaw.WithAPIKey("sk-your-api-key"))
     ctx := context.Background()
 
     usdcBase := "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
@@ -406,7 +406,7 @@ import (
 
 func main() {
     // x402 agent — DEX endpoints are free, but x402 auth still works
-    mc := jarvisclaw.NewMarketplaceClient(
+    mc, _ := jarvisclaw.NewMarketplaceClient(
         jarvisclaw.WithPrivateKey("0x<agent-wallet-private-key>"),
     )
     ctx := context.Background()

@@ -337,7 +337,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -346,62 +345,43 @@ import (
 
 func main() {
 	ctx := context.Background()
-	mc := jarvisclaw.NewMarketplaceClient(jarvisclaw.WithAPIKey("sk-your-api-key"))
+	mc, _ := jarvisclaw.NewMarketplaceClient(jarvisclaw.WithAPIKey("sk-your-api-key"))
 
 	// 1. Initialize liveness session
-	initResp, err := mc.Post(ctx, "realface", "/init", map[string]string{
+	session, err := mc.Post(ctx, "realface", "/init", map[string]string{
 		"name": "John Doe",
 	})
 	if err != nil {
 		panic(err)
 	}
-
-	var session struct {
-		GroupID          string `json:"group_id"`
-		H5Link           string `json:"h5_link"`
-		Status           string `json:"status"`
-		ExpiresInSeconds int    `json:"expires_in_seconds"`
-	}
-	json.Unmarshal(initResp, &session)
-	fmt.Printf("H5 Link (show as QR): %s\n", session.H5Link)
+	groupID := session["group_id"].(string)
+	fmt.Printf("H5 Link (show as QR): %s\n", session["h5_link"])
 
 	// 2. Poll until active
 	for {
-		statusResp, err := mc.Call(ctx, "realface", "/status",
-			jarvisclaw.WithParams(map[string]string{
-				"groupId": session.GroupID,
-			}))
-		if err != nil {
-			panic(err)
-		}
-		var s struct {
-			Status string `json:"status"`
-		}
-		json.Unmarshal(statusResp, &s)
-		if s.Status == "active" {
+		status, _ := mc.Call(ctx, "realface", "/status",
+			jarvisclaw.WithParams(map[string]string{"groupId": groupID}))
+		s := status["status"].(string)
+		if s == "active" {
 			fmt.Println("Liveness verified!")
 			break
 		}
-		if s.Status == "expired" || s.Status == "failed" {
-			panic("liveness failed: " + s.Status)
+		if s == "expired" || s == "failed" {
+			panic("liveness failed: " + s)
 		}
 		time.Sleep(3 * time.Second)
 	}
 
 	// 3. Enroll face
-	enrollResp, err := mc.Post(ctx, "realface", "/enroll", map[string]string{
+	asset, err := mc.Post(ctx, "realface", "/enroll", map[string]string{
 		"name":      "John Doe",
 		"image_url": "https://example.com/john-photo.jpg",
-		"group_id":  session.GroupID,
+		"group_id":  groupID,
 	})
 	if err != nil {
 		panic(err)
 	}
-	var asset struct {
-		AssetID string `json:"asset_id"`
-	}
-	json.Unmarshal(enrollResp, &asset)
-	fmt.Printf("Asset ID: %s\n", asset.AssetID)
+	fmt.Printf("Asset ID: %s\n", asset["asset_id"])
 }
 ```
 
@@ -410,7 +390,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -421,48 +400,34 @@ func main() {
 	ctx := context.Background()
 
 	// x402 agent — pays per call with USDC, no API key needed
-	mc := jarvisclaw.NewMarketplaceClient(
+	mc, _ := jarvisclaw.NewMarketplaceClient(
 		jarvisclaw.WithPrivateKey("0x<agent-wallet-private-key>"),
 	)
 
 	// 1. Initialize liveness session
-	initResp, _ := mc.Post(ctx, "realface", "/init", map[string]string{
+	session, _ := mc.Post(ctx, "realface", "/init", map[string]string{
 		"name": "John Doe",
 	})
-	var session struct {
-		GroupID string `json:"group_id"`
-		H5Link  string `json:"h5_link"`
-	}
-	json.Unmarshal(initResp, &session)
-	fmt.Printf("H5 Link: %s\n", session.H5Link)
+	groupID := session["group_id"].(string)
+	fmt.Printf("H5 Link: %s\n", session["h5_link"])
 
 	// 2. Poll status
 	for {
-		statusResp, _ := mc.Call(ctx, "realface", "/status",
-			jarvisclaw.WithParams(map[string]string{
-				"groupId": session.GroupID,
-			}))
-		var s struct {
-			Status string `json:"status"`
-		}
-		json.Unmarshal(statusResp, &s)
-		if s.Status == "active" {
+		status, _ := mc.Call(ctx, "realface", "/status",
+			jarvisclaw.WithParams(map[string]string{"groupId": groupID}))
+		if status["status"].(string) == "active" {
 			break
 		}
 		time.Sleep(3 * time.Second)
 	}
 
 	// 3. Enroll
-	enrollResp, _ := mc.Post(ctx, "realface", "/enroll", map[string]string{
+	asset, _ := mc.Post(ctx, "realface", "/enroll", map[string]string{
 		"name":      "John Doe",
 		"image_url": "https://example.com/john-photo.jpg",
-		"group_id":  session.GroupID,
+		"group_id":  groupID,
 	})
-	var asset struct {
-		AssetID string `json:"asset_id"`
-	}
-	json.Unmarshal(enrollResp, &asset)
-	fmt.Printf("Asset ID: %s\n", asset.AssetID)
+	fmt.Printf("Asset ID: %s\n", asset["asset_id"])
 }
 ```
 

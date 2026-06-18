@@ -165,7 +165,7 @@ func main() {
 
     // Streaming
     stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.5"))
-    for chunk := range stream {
+    for chunk := range stream.Channel() {
         fmt.Print(chunk)
     }
 }
@@ -197,7 +197,7 @@ func main() {
 
     // Streaming
     stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.5"))
-    for chunk := range stream {
+    for chunk := range stream.Channel() {
         fmt.Print(chunk)
     }
 }

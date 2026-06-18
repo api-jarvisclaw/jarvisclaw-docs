@@ -68,7 +68,7 @@ fmt.Println(text)
 
 // Streaming
 stream, _ := client.Stream(ctx, "Tell me a joke")
-for chunk := range stream {
+for chunk := range stream.Channel() {
     fmt.Print(chunk)
 }
 ```
