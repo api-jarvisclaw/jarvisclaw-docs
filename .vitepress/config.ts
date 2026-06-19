@@ -12,6 +12,7 @@ export default defineConfig({
     nav: [
       { text: 'Docs', link: '/quickstart' },
       { text: 'API Reference', link: '/api/chat-completions' },
+      { text: 'Agent Economy', link: '/agent-economy' },
       { text: 'MCP & Agents', link: '/mcp' },
       { text: 'Dashboard', link: 'https://api.jarvisclaw.ai' },
     ],
@@ -45,6 +46,13 @@ export default defineConfig({
           { text: 'MCP Configuration', link: '/mcp' },
           { text: 'Agent Registry', link: '/agent-registry' },
           { text: 'Discovery Protocol', link: '/discovery' },
+        ],
+      },
+      {
+        text: 'Agent Economy',
+        items: [
+          { text: 'Intent Resolution (AIP)', link: '/agent-economy' },
+          { text: 'Wallet & Treasury', link: '/wallet-treasury' },
         ],
       },
       {
