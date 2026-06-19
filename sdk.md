@@ -783,3 +783,112 @@ if err != nil {
 ```
 
 :::
+
+---
+
+## Agent Class (AIP + Treasury)
+
+The `Agent` class combines intent resolution, wallet management, and model execution into one object. Recommended for autonomous agents.
+
+### Installation
+
+::: code-group
+
+```shell [Python]
+pip install jarvisclaw[agent]
+```
+
+```shell [Go]
+go get github.com/api-jarvisclaw/go-sdk
+```
+
+:::
+
+### `ask()` — One Line to Do Everything
+
+::: code-group
+
+```python [Python]
+from jarvisclaw import Agent
+
+agent = Agent(api_key="sk-YOUR-KEY")
+# or: agent = Agent(private_key="0x...")  for x402
+
+# Finds cheapest model within budget, calls it, returns text
+result = agent.ask("Explain quantum computing", budget=0.01, optimize="cost")
+print(result)
+```
+
+```go [Go]
+import jc "github.com/api-jarvisclaw/go-sdk"
+
+c, _ := jc.NewClient(jc.WithAPIKey("sk-YOUR-KEY"))
+text, _ := c.Ask(ctx, "Explain quantum computing",
+    jc.AskOptions{Budget: 0.01, Optimize: "cost"})
+fmt.Println(text)
+```
+
+:::
+
+### Intent Resolution
+
+::: code-group
+
+```python [Python]
+result = agent.resolve("chat_completion", max_price=0.01, optimize="cost")
+for match in result["matches"]:
+    print(f"{match['model']}: ${match['estimated_price_usd']:.6f}")
+```
+
+```go [Go]
+resp, _ := c.Resolve(ctx, jc.ResolveRequest{
+    Intent:      "chat_completion",
+    Constraints: jc.Constraints{MaxPriceUSD: jc.Float64Ptr(0.01)},
+    Preferences: jc.Preferences{OptimizeFor: "cost"},
+})
+```
+
+:::
+
+### Wallet Management
+
+::: code-group
+
+```python [Python]
+bal = agent.balance()
+print(f"Total: ${bal['total_usd']}")
+
+pools = agent.pools()
+agent.set_limits(daily_max_usd=30.0, per_request_max_usd=0.5)
+history = agent.history(page=1, page_size=50)
+```
+
+```go [Go]
+bal, _ := c.WalletBalance(ctx)
+pools, _ := c.WalletPools(ctx)
+c.SetWalletLimits(ctx, jc.WalletLimits{DailyMaxUSD: 30.0})
+```
+
+:::
+
+### Go Treasury SDK (Advanced)
+
+For full financial autonomy — multi-pool budgeting, rule engine, circuit breakers:
+
+```shell
+go get github.com/api-jarvisclaw/agent-treasury-go
+```
+
+```go
+import "github.com/api-jarvisclaw/agent-treasury-go/treasury"
+
+provider := treasury.NewJarvisClawProvider("https://api.jarvisclaw.ai", "sk-KEY")
+t := treasury.New(treasury.Config{AgentID: "my-bot"}, provider)
+
+ok, _ := t.ApproveSpend(0.003, "inference")
+if ok {
+    t.Spend(0.003, "inference", "deepseek-chat")
+}
+```
+
+See [Wallet & Treasury](/wallet-treasury) for the full reference.
