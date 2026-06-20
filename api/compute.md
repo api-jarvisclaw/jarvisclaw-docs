@@ -67,10 +67,16 @@ Create a new isolated sandbox container.
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5",
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV",
   "status": "running",
-  "created_at": "2026-06-13T10:00:00Z",
-  "expires_at": "2026-06-13T10:05:00Z"
+  "created_at": "2026-06-20T12:05:12.716280+00:00",
+  "config": {
+    "image": "python:3.11",
+    "timeout": 300,
+    "cpu": 1,
+    "memory": 512,
+    "gpu": null
+  }
 }
 ```
 
@@ -83,13 +89,13 @@ Run a command inside an existing sandbox.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `sandbox_id` | string | Yes | Sandbox identifier |
-| `command` | string or array | Yes | Shell command (string) or command array (e.g. `["python", "-c", "print(1)"]`) |
+| `command` | array | Yes | Command as array (e.g. `["python", "-c", "print(1)"]`) |
 
 ### Request
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5",
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV",
   "command": ["python", "-c", "import sys; print(sys.version)"]
 }
 ```
@@ -98,10 +104,10 @@ Run a command inside an existing sandbox.
 
 ```json
 {
-  "exit_code": 0,
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV",
   "stdout": "3.11.9 (main, Apr  2 2024, 08:25:04) [GCC 12.2.0]\n",
   "stderr": "",
-  "duration_ms": 45
+  "returncode": 0
 }
 ```
 
@@ -119,7 +125,7 @@ Get current status and metadata of a sandbox.
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5"
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV"
 }
 ```
 
@@ -127,11 +133,9 @@ Get current status and metadata of a sandbox.
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5",
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV",
   "status": "running",
-  "created_at": "2026-06-13T10:00:00Z",
-  "expires_at": "2026-06-13T10:05:00Z",
-  "commands_executed": 3
+  "returncode": null
 }
 ```
 
@@ -149,7 +153,7 @@ Immediately terminate a sandbox and release all resources.
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5"
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV"
 }
 ```
 
@@ -157,7 +161,7 @@ Immediately terminate a sandbox and release all resources.
 
 ```json
 {
-  "sandbox_id": "sb_a1b2c3d4e5",
+  "sandbox_id": "sb-x8dagbSASXzZqYzSIO7tdV",
   "status": "terminated"
 }
 ```

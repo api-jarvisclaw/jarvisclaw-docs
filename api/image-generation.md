@@ -35,13 +35,19 @@ Generate images from a text prompt.
 
 ```json
 {
+  "id": "47c11cc4-e210-4501-8e12-28269a665575",
   "created": 1717200000,
   "data": [
     {
-      "url": "https://cdn.jarvisclaw.ai/images/img_abc123.png",
-      "revised_prompt": "A futuristic cityscape at sunset..."
+      "url": "https://cdn.jarvisclaw.ai/media/media/images/2026/06/20/aef2a95d.png",
+      "source_url": "data:image/png",
+      "backed_up": true
     }
-  ]
+  ],
+  "price": {
+    "amount": "0.021000",
+    "currency": "USD"
+  }
 }
 ```
 

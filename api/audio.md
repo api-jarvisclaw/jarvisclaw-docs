@@ -14,7 +14,7 @@ Convert text to spoken audio.
 {
   "model": "auto/tts",
   "input": "Hello, welcome to JarvisClaw!",
-  "voice": "alloy"
+  "voice": "sarah"
 }
 ```
 
@@ -24,7 +24,7 @@ Convert text to spoken audio.
 |-----------|------|----------|-------------|
 | `model` | string | Yes | TTS model ID (`auto/tts`, `elevenlabs/flash-v2.5`, `elevenlabs/v3`, `elevenlabs/multilingual-v2`, `elevenlabs/turbo-v2.5`) |
 | `input` | string | Yes | Text to convert to speech (max 4096 chars) |
-| `voice` | string | Yes | Voice preset (e.g., `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer`) |
+| `voice` | string | Yes | Voice alias. ElevenLabs voices: `sarah`, `george`, `charlie`, `charlotte`, `aria`. Query available voices via `GET /v1/audio/voices`. |
 | `response_format` | string | No | Audio format: `mp3` (default), `opus`, `aac`, `flac` |
 | `speed` | float | No | Speed multiplier (0.25 to 4.0). Default: `1.0` |
 
@@ -46,7 +46,7 @@ client = OpenAI(
 
 response = client.audio.speech.create(
     model="auto/tts",
-    voice="nova",
+    voice="sarah",
     input="Hello, welcome to JarvisClaw!",
 )
 
@@ -137,7 +137,7 @@ func main() {
 curl https://api.jarvisclaw.ai/v1/audio/speech \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "auto/tts", "input": "Hello!", "voice": "alloy"}' \
+  -d '{"model": "auto/tts", "input": "Hello!", "voice": "sarah"}' \
   --output output.mp3
 ```
 

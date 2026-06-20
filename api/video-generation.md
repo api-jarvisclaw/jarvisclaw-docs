@@ -53,11 +53,18 @@ Submit a video generation job.
 
 ```json
 {
-  "id": "vg_abc123def456",
+  "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
+  "object": "video.generation.job",
   "status": "queued",
-  "created_at": 1717200000,
   "model": "bytedance/seedance-2.0-pro",
-  "estimated_wait_seconds": 60
+  "duration_seconds": 5,
+  "price": {
+    "amount": "1.275372",
+    "currency": "USD"
+  },
+  "payment_status": "verified",
+  "created": 1717200000,
+  "poll_url": "/v1/videos/generations/bytedance%3Avideo_ae260c45bdb7453c8bbe5a47?model=...&sig=..."
 }
 ```
 
@@ -73,7 +80,7 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 
 ```json
 {
-  "id": "vg_abc123def456",
+  "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
   "status": "in_progress",
   "created_at": 1717200000,
   "model": "bytedance/seedance-2.0-pro",
@@ -86,15 +93,29 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 
 ```json
 {
-  "id": "vg_abc123def456",
+  "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
+  "object": "video.generation.job",
   "status": "completed",
-  "created_at": 1717200000,
-  "completed_at": 1717200065,
   "model": "bytedance/seedance-2.0-pro",
-  "url": "https://cdn.jarvisclaw.ai/videos/vg_abc123def456.mp4",
-  "duration_seconds": 5,
-  "progress": 100,
-  "elapsed_seconds": 65
+  "created": 1717200000,
+  "data": [
+    {
+      "url": "https://cdn.jarvisclaw.ai/media/media/videos/2026/06/20/video_ae260c45-15b82b3e.mp4",
+      "source_url": "https://ark-acg-ap-southeast-1.tos-ap-southeast-1.volces.com/...",
+      "duration_seconds": 5,
+      "request_id": "video_ae260c45bdb7453c8bbe5a47",
+      "backed_up": true
+    }
+  ],
+  "usage": {
+    "total_tokens": 108900,
+    "token_source": "upstream"
+  },
+  "price": {
+    "amount": "1.275372",
+    "currency": "USD"
+  }
+}
 }
 ```
 

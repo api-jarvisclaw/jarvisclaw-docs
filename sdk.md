@@ -388,7 +388,7 @@ with open("lofi.mp3", "wb") as f:
     f.write(result.content)
 
 # ─── speech() — always blocking (fast, <5s) ───
-result = audio.speech("Hello world", voice="alloy")
+result = audio.speech("Hello world", voice="sarah")
 with open("output.mp3", "wb") as f:
     f.write(result.content)
 
@@ -401,7 +401,7 @@ async def main():
         # Concurrent music + speech generation
         music, speech = await asyncio.gather(
             aud.music("Jazz piano"),
-            aud.speech("Hello world", voice="nova"),
+            aud.speech("Hello world", voice="sarah"),
         )
         # music.content and speech.content are bytes
 
@@ -412,7 +412,7 @@ asyncio.run(main())
 client, _ := jarvisclaw.NewAudioClient(jarvisclaw.WithAPIKey("sk-..."))
 
 // Text-to-Speech (returns raw audio bytes)
-result, _ := client.Speech(ctx, "Hello world", jarvisclaw.WithVoice("alloy"))
+result, _ := client.Speech(ctx, "Hello world", jarvisclaw.WithVoice("sarah"))
 os.WriteFile("output.mp3", result.Data, 0644)
 
 // Music generation (returns URL)

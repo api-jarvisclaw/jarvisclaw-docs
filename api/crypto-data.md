@@ -36,12 +36,22 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/surf/exchange/price?pair=BTC-USDT
 
 ```json
 {
-  "pair": "BTC-USDT",
-  "exchange": "binance",
-  "price": 98500.25,
-  "volume_24h": 25000000000,
-  "change_24h": 2.35,
-  "timestamp": 1717200000
+  "$schema": "https://api.asksurf.ai/schemas/SimpleListResponseExchangePriceItem.json",
+  "data": [
+    {
+      "exchange": "binance",
+      "pair": "BTC/USDT",
+      "last": 63732,
+      "bid": 63732,
+      "ask": 63732.01,
+      "high_24h": 63907.07,
+      "low_24h": 62353,
+      "volume_24h_base": 11787.64,
+      "change_24h_pct": 1.705,
+      "timestamp": 1717200000
+    }
+  ]
+}
 }
 ```
 

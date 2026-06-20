@@ -1,6 +1,6 @@
 # DEX Trading API (0x Swap)
 
-Decentralized exchange trading via 0x protocol. Best-execution routing across 100+ DEXes with Permit2 and Gasless V2. **FREE for all callers** — you only pay on-chain gas fees.
+Decentralized exchange trading via 0x protocol. Best-execution routing across 100+ DEXes with Permit2 and Gasless V2. Authentication required (API key or x402 payment). You only pay on-chain gas fees for executed swaps — no additional per-call fee from JarvisClaw.
 
 ## Base URL
 
@@ -10,7 +10,7 @@ https://api.jarvisclaw.ai/v1/marketplace/dex
 
 ## Pricing
 
-**All DEX endpoints are free.** No JarvisClaw fees — only standard on-chain gas costs for submitted transactions. Gasless swaps eliminate even gas fees for supported tokens.
+Authentication (API key or x402) is required to access DEX endpoints. No per-call fee from JarvisClaw — you only pay standard on-chain gas costs for submitted transactions. Gasless swaps eliminate even gas fees for supported tokens.
 
 ## Supported Chains
 
@@ -26,10 +26,10 @@ https://api.jarvisclaw.ai/v1/marketplace/dex
 
 | Method | Endpoint | Description | Price |
 |--------|----------|-------------|-------|
-| GET | `/price` | Indicative swap price (no commitment) | Free |
-| GET | `/quote` | Firm quote with calldata + Permit2 data | Free |
-| POST | `/gasless/submit` | Submit a signed gasless swap | Free |
-| GET | `/gasless/status/:tradeHash` | Track gasless swap status | Free |
+| GET | `/price` | Indicative swap price (no commitment) | Auth required, no per-call fee |
+| GET | `/quote` | Firm quote with calldata + Permit2 data | Auth required, no per-call fee |
+| POST | `/gasless/submit` | Submit a signed gasless swap | Auth required, no per-call fee |
+| GET | `/gasless/status/:tradeHash` | Track gasless swap status | Auth required, no per-call fee |
 
 ---
 

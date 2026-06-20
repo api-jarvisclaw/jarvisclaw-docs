@@ -55,12 +55,14 @@ Get a real-time price snapshot for a stock on a specific exchange.
 ```json
 {
   "symbol": "AAPL",
-  "market": "us",
-  "price": 189.45,
-  "change": 2.15,
-  "change_percent": 1.15,
-  "volume": 52340000,
-  "timestamp": "2025-06-01T15:30:00Z"
+  "category": "stocks/us",
+  "price": 298.17143,
+  "confidence": 0.14916,
+  "publishTime": 1781812821,
+  "timestamp": "2026-06-18T20:00:21.000Z",
+  "assetType": "equity",
+  "feedId": "0x49f6b65cb1de6b10eaf75e7c03ca029c306d0357e91b5311b175084a5ad55688",
+  "source": "pyth"
 }
 ```
 
@@ -82,13 +84,15 @@ Get real-time price for a cryptocurrency trading pair.
 
 ```json
 {
-  "pair": "BTC-USD",
-  "price": 67432.15,
-  "bid": 67430.00,
-  "ask": 67434.30,
-  "change_24h": 2.34,
-  "volume_24h": 28500000000,
-  "timestamp": "2025-06-01T15:30:00Z"
+  "symbol": "BTC-USD",
+  "category": "crypto",
+  "price": 63680.33,
+  "confidence": 38.42,
+  "publishTime": 1781957129,
+  "timestamp": "2026-06-20T12:05:29.000Z",
+  "assetType": "crypto",
+  "feedId": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+  "source": "pyth"
 }
 ```
 

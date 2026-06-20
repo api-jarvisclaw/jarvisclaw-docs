@@ -74,12 +74,11 @@ audio = AudioClient(api_key="sk-your-api-key")
 
 # Smart route (auto-selects best model)
 result = audio.music("Chill lo-fi hip hop beat with rain sounds", instrumental=True)
-print(f"Track URL: {result.url}")
 
-# With explicit model
-result = audio.music("Chill lo-fi hip hop beat with rain sounds",
-    model="auto/music", instrumental=True)
-print(f"Track URL: {result.url}")
+# Save the audio file
+with open("track.mp3", "wb") as f:
+    f.write(result.content)
+print(f"Saved {len(result.content)} bytes, type: {result.content_type}")
 ```
 
 ```python [Python (x402 Agent)]
@@ -95,14 +94,13 @@ audio = AudioClient(private_key="0x<evm-private-key>")
 
 # SDK auto-detects chain from key format — no config needed
 
-# Smart route (auto-selects best model)
+# Generate music (returns audio bytes, takes 1-3 min)
 result = audio.music("Chill lo-fi hip hop beat with rain sounds", instrumental=True)
-print(f"Track URL: {result.url}")
 
-# With explicit model
-result = audio.music("Chill lo-fi hip hop beat",
-    model="auto/music", instrumental=True)
-print(f"Track URL: {result.url}")
+# Save the audio file
+with open("track.mp3", "wb") as f:
+    f.write(result.content)
+print(f"Saved {len(result.content)} bytes")
 ```
 
 ```go [Go (API Key)]
