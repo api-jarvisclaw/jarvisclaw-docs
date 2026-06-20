@@ -25,7 +25,7 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 | GET /polymarket/market/{id} | Get single market details by condition ID |
 | GET /polymarket/events | List events (grouped markets) |
 | GET /polymarket/event/{slug} | Get event details by slug |
-| GET /polymarket/categories | List all available categories |
+| GET /polymarket/categories | List all available categories *(not yet available)* |
 | GET /polymarket/pricing/{conditionId} | Current best bid/ask pricing |
 | GET /polymarket/pricing/history/{conditionId} | Historical price snapshots |
 | GET /polymarket/candlesticks/{conditionId} | OHLCV candlestick data |
@@ -33,7 +33,7 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 | GET /polymarket/volume/aggregate | Aggregate platform volume stats |
 | GET /polymarket/orderbook/{conditionId} | Full order book depth |
 | GET /polymarket/trades/{conditionId} | Recent trades list |
-| GET /polymarket/trades/live | Live trade feed (most recent across all markets) |
+| GET /polymarket/trades/live | Live trade feed (most recent across all markets) *(not yet available)* |
 | GET /polymarket/positions/{address} | Wallet open positions |
 | GET /polymarket/positions/history/{address} | Historical position changes |
 | GET /polymarket/pnl/{address} | Wallet realized + unrealized PnL |
@@ -46,7 +46,7 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 | GET /polymarket/comments/{conditionId} | Market comments/discussion |
 | GET /polymarket/resolution/{conditionId} | Resolution details (for resolved markets) |
 | GET /polymarket/liquidity/{conditionId} | Liquidity provider stats |
-| GET /polymarket/stats | Platform-wide statistics |
+| GET /polymarket/stats | Platform-wide statistics *(not yet available)* |
 
 ### Kalshi (3 endpoints)
 
@@ -54,7 +54,7 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 |----------|-------------|
 | GET /kalshi/markets | List Kalshi markets with category/status filter |
 | GET /kalshi/market/{ticker} | Get market details by ticker |
-| GET /kalshi/events | List Kalshi events |
+| GET /kalshi/events | List Kalshi events *(not yet available)* |
 
 ### dFlow (3 endpoints)
 
@@ -68,21 +68,21 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 
 | Endpoint | Description |
 |----------|-------------|
-| GET /binance/long-short | Long/short ratio for futures pairs |
-| GET /binance/open-interest | Open interest history |
+| GET /binance/long-short | Long/short ratio for futures pairs *(not yet available)* |
+| GET /binance/open-interest | Open interest history *(not yet available)* |
 
 ### Cross-Venue Matching (8 endpoints)
 
 | Endpoint | Description |
 |----------|-------------|
 | GET /markets/search | Search across all venues by keyword |
-| GET /markets/trending | Trending markets across all venues |
-| GET /markets/new | Newly created markets |
-| GET /markets/resolving-soon | Markets resolving within 24-72h |
-| GET /markets/highest-volume | Highest volume markets cross-venue |
+| GET /markets/trending | Trending markets across all venues *(not yet available)* |
+| GET /markets/new | Newly created markets *(not yet available)* |
+| GET /markets/resolving-soon | Markets resolving within 24-72h *(not yet available)* |
+| GET /markets/highest-volume | Highest volume markets cross-venue *(not yet available)* |
 | GET /markets/compare/{topic} | Compare pricing across venues for same topic |
-| GET /markets/categories | Unified category list across all venues |
-| GET /markets/arbitrage | Price discrepancies between venues |
+| GET /markets/categories | Unified category list across all venues *(not yet available)* |
+| GET /markets/arbitrage | Price discrepancies between venues *(not yet available)* |
 
 ### Sports (4 endpoints)
 
@@ -90,7 +90,7 @@ The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market end
 |----------|-------------|
 | GET /sports/markets | Sports prediction markets (all venues) |
 | GET /sports/events | Upcoming sporting events with markets |
-| GET /sports/leagues | Supported leagues and sports |
+| GET /sports/leagues | Supported leagues and sports *(not yet available)* |
 | GET /sports/live | Live in-play markets |
 
 ### Limitless / Opinion / Predict.Fun (6 endpoints)
@@ -134,7 +134,7 @@ List active Polymarket prediction markets with filtering and pagination.
 | `limit` | integer | No | Results per page. Default: `20`, Max: `100` |
 | `offset` | integer | No | Pagination offset. Default: `0` |
 | `category` | string | No | Filter: `politics`, `crypto`, `sports`, `science`, `culture`, `business`, `tech` |
-| `status` | string | No | Filter: `active`, `resolved`, `all`. Default: `active` |
+| `status` | string | No | Filter: `open`, `closed`. Default: `open` |
 | `sort` | string | No | Sort by: `volume`, `liquidity`, `newest`, `ending_soon`. Default: `volume` |
 
 #### Response
@@ -270,6 +270,8 @@ Search for markets across all providers by keyword or topic.
 
 ### GET /markets/arbitrage
 
+> **Not yet available.** This endpoint is planned but currently returns 404.
+
 Find price discrepancies for the same topic across different venues.
 
 #### Response
@@ -362,10 +364,6 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/prediction/kalshi/markets?limit=5
 curl "https://api.jarvisclaw.ai/v1/marketplace/prediction/markets/search?q=bitcoin+2026&providers=polymarket,kalshi" \
   -H "Authorization: Bearer sk-your-api-key"
 
-# Get cross-venue arbitrage opportunities
-curl "https://api.jarvisclaw.ai/v1/marketplace/prediction/markets/arbitrage" \
-  -H "Authorization: Bearer sk-your-api-key"
-
 # Polymarket leaderboard (30d)
 curl "https://api.jarvisclaw.ai/v1/marketplace/prediction/polymarket/leaderboard?period=30d&limit=10" \
   -H "Authorization: Bearer sk-your-api-key"
@@ -404,11 +402,6 @@ results = client.call("prediction", "/markets/search", method="GET", params={
 })
 for r in results["results"]:
     print(f"[{r['provider']}] {r.get('question', r.get('title'))}: YES {r['yes_price']}")
-
-# Arbitrage opportunities
-arb = client.call("prediction", "/markets/arbitrage", method="GET")
-for opp in arb["opportunities"]:
-    print(f"{opp['topic']}: spread {opp['spread']:.1%}")
 ```
 
 ```python [Python (x402 Agent)]
@@ -522,10 +515,6 @@ func main() {
 		"category": "economics",
 	}))
 	fmt.Println("Kalshi markets:", kalshi)
-
-	// Arbitrage opportunities
-	arb, _ := mc.Call(ctx, "prediction", "/markets/arbitrage", nil)
-	fmt.Println("Arbitrage:", arb)
 }
 ```
 

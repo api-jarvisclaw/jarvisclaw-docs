@@ -58,7 +58,7 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/surf/exchange/price?pair=BTC-USDT
 | GET /market/liquidation/exchange-list | Liquidations by exchange |
 | GET /market/liquidation/order | Large liquidation orders (params: limit) |
 | GET /market/liquidation/chart | Liquidation chart data (params: symbol) |
-| GET /market/onchain-metric | On-chain metrics — NUPL, SOPR, MVRV (params: symbol, metric) |
+| GET /market/onchain-indicator | On-chain indicators — NVT, SOPR, MVRV (params: symbol, metric) |
 | GET /market/price-indicator | Technical indicators — RSI, MACD, Bollinger (params: symbol, indicator) |
 
 ### Example: Fear & Greed
@@ -81,7 +81,7 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/surf/exchange/price?pair=BTC-USDT
 | GET /onchain/gas-price | Gas price across chains (params: chain) |
 | GET /onchain/tx | Transaction details (params: hash, chain) |
 | GET /onchain/schema | ClickHouse schema — available tables and columns |
-| POST /onchain/query | Structured blockchain query (params: query, limit) |
+| POST /onchain/query | Natural-language blockchain query (params: source, question, limit) — see /onchain/sql for raw SQL |
 | POST /onchain/sql | Raw SQL query against ClickHouse tables (params: sql) |
 
 ### Example: SQL Query
@@ -114,7 +114,7 @@ curl -X POST "https://api.jarvisclaw.ai/v1/marketplace/surf/onchain/sql" \
 | GET /wallet/net-worth | Net-worth time series (params: address) |
 | GET /wallet/transfers | Transfer history (params: address, limit) |
 | GET /wallet/protocols | DeFi positions (params: address) |
-| POST /wallet/labels/batch | Batch label lookup — max 100 addresses (params: addresses[]) |
+| GET /wallet/labels/batch | Batch label lookup — max 100 addresses (params: addresses[]) |
 
 ### Example: Wallet Detail
 
@@ -135,7 +135,7 @@ curl -X POST "https://api.jarvisclaw.ai/v1/marketplace/surf/onchain/sql" \
 | GET /social/detail | Social analytics — engagement metrics (params: handle) |
 | GET /social/ranking | Mindshare ranking — top influencers (params: limit) |
 | GET /social/smart-followers/history | Smart followers growth (params: handle) |
-| GET /social/mindshare | Token mention share (params: symbol) |
+| GET /social/mindshare | Token mention share (params: q, interval) |
 | GET /social/tweets | Bulk tweet lookup (params: ids) |
 | GET /social/tweet/replies | Tweet replies (params: tweet_id, limit) |
 | GET /social/user | Twitter profile (params: handle) |
@@ -196,8 +196,8 @@ curl -X POST "https://api.jarvisclaw.ai/v1/marketplace/surf/onchain/sql" \
 
 | Endpoint | Description |
 |----------|-------------|
-| GET /prediction-market/category-metrics | Category aggregate stats |
-| GET /prediction-market/polymarket/ranking | Top Polymarket markets by volume |
+| ~~GET /prediction-market/category-metrics~~ | ~~Category aggregate stats~~ — **removed (410 Gone)** |
+| ~~GET /prediction-market/polymarket/ranking~~ | ~~Top Polymarket markets by volume~~ — **removed (410 Gone)** |
 | GET /prediction-market/polymarket/trades | Recent trades (params: ticker, limit) |
 | GET /prediction-market/polymarket/markets | Browse markets (params: market_slug, limit, category) |
 | GET /prediction-market/polymarket/events | Grouped markets by event (params: event_slug, limit) |

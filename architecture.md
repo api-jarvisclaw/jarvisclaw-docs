@@ -366,7 +366,7 @@ HD 钱包 x402 结算支持 Base (EVM) 和 Solana 双链，自动 fallback：
 | `auto/image` | 图片需求分析 | gpt-image-2, dall-e-3 |
 | `auto/music` | 音乐风格分析 | minimax/music-2.5+ |
 | `auto/tts` | 语言检测 | elevenlabs/flash-v2.5 (EN), multilingual-v2 (多语言) |
-| `auto/search` | 搜索聚合 | xai/grok-3-mini + Exa sources |
+| `auto/search` | 搜索聚合 | xai/grok-4.3 + Exa sources |
 
 **路由配置：**
 - 后台 UI 可视化管理每个 tier 的模型

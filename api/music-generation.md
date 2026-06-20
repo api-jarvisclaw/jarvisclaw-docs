@@ -13,7 +13,7 @@ Generate a music track from a text prompt.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| model | string | Yes | Model identifier (e.g. "minimax/music-2.5") |
+| model | string | Yes | Model identifier (`auto/music`, `minimax/music-2.5+`) |
 | prompt | string | Yes | Description of the music to generate (genre, mood, tempo) |
 | instrumental | boolean | No | Generate instrumental only (no vocals) (default: false) |
 | lyrics | string | No | Custom lyrics for the track (ignored if instrumental is true) |
@@ -23,7 +23,7 @@ Generate a music track from a text prompt.
 
 ```json
 {
-  "model": "minimax/music-2.5",
+  "model": "auto/music",
   "prompt": "Upbeat electronic dance track with synth arpeggios and driving bass",
   "instrumental": true,
   "duration_seconds": 120
@@ -48,7 +48,8 @@ Generate a music track from a text prompt.
 
 | Model | Price | Notes |
 |-------|-------|-------|
-| minimax/music-2.5 | $0.1575/track | Up to ~3 minutes output |
+| auto/music | $0.1575/track | Auto-routes to best available |
+| minimax/music-2.5+ | $0.1575/track | Up to ~3 minutes output |
 
 ## Code Examples
 
@@ -59,7 +60,7 @@ curl -X POST https://api.jarvisclaw.ai/v1/audio/generations \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "minimax/music-2.5",
+    "model": "auto/music",
     "prompt": "Chill lo-fi hip hop beat with rain sounds",
     "instrumental": true,
     "duration_seconds": 120
@@ -77,7 +78,7 @@ print(f"Track URL: {result.url}")
 
 # With explicit model
 result = audio.music("Chill lo-fi hip hop beat with rain sounds",
-    model="minimax/music-2.5", instrumental=True)
+    model="auto/music", instrumental=True)
 print(f"Track URL: {result.url}")
 ```
 
@@ -100,7 +101,7 @@ print(f"Track URL: {result.url}")
 
 # With explicit model
 result = audio.music("Chill lo-fi hip hop beat",
-    model="minimax/music-2.5", instrumental=True)
+    model="auto/music", instrumental=True)
 print(f"Track URL: {result.url}")
 ```
 
@@ -124,7 +125,7 @@ func main() {
 
     // With explicit model
     result, _ = ac.Music(ctx, "Chill lo-fi hip hop beat with rain sounds",
-        jc.WithAudioModel("minimax/music-2.5"), jc.WithInstrumental(true))
+        jc.WithAudioModel("auto/music"), jc.WithInstrumental(true))
     fmt.Printf("Track URL: %s\n", result.URL)
 }
 ```
@@ -151,7 +152,7 @@ func main() {
 
     // With explicit model
     result, _ = ac.Music(ctx, "Chill lo-fi hip hop beat",
-        jc.WithAudioModel("minimax/music-2.5"), jc.WithInstrumental(true))
+        jc.WithAudioModel("auto/music"), jc.WithInstrumental(true))
     fmt.Printf("Track URL: %s\n", result.URL)
 }
 ```

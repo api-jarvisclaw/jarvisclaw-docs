@@ -14,7 +14,7 @@ Create a chat completion.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| model | string | Yes | Model identifier (e.g. "openai/gpt-5.5", "anthropic/claude-sonnet-4") |
+| model | string | Yes | Model identifier (e.g. "openai/gpt-5.5", "anthropic/claude-sonnet-4.6") |
 | messages | array | Yes | Array of message objects with role and content |
 | max_tokens | integer | No | Maximum number of tokens to generate (default: 4096) |
 | temperature | number | No | Sampling temperature (0-2) (default: 1.0) |
@@ -26,7 +26,7 @@ Create a chat completion.
 
 ```json
 {
-  "model": "anthropic/claude-sonnet-4",
+  "model": "anthropic/claude-sonnet-4.6",
   "messages": [
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "Explain quantum computing in simple terms."}
@@ -44,7 +44,7 @@ Create a chat completion.
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1717200000,
-  "model": "anthropic/claude-sonnet-4",
+  "model": "anthropic/claude-sonnet-4.6",
   "choices": [
     {
       "index": 0,
@@ -67,11 +67,11 @@ Create a chat completion.
 
 | Model | Price (per 1M tokens) | Notes |
 |-------|----------------------|-------|
-| openai/gpt-5.5 | $5.00 / $15.00 | Input / Output pricing |
-| anthropic/claude-sonnet-4 | $3.00 / $15.00 | Input / Output pricing |
+| openai/gpt-5.5 | $5.00 / $30.00 | Input / Output pricing |
+| anthropic/claude-sonnet-4.6 | $3.00 / $15.00 | Input / Output pricing |
 | google/gemini-2.5-pro | $2.50 / $15.00 | Input / Output pricing |
-| deepseek/deepseek-r1 | $0.55 / $2.19 | Input / Output pricing |
-| xai/grok-3 | $3.00 / $15.00 | Input / Output pricing |
+| deepseek/deepseek-chat | $0.55 / $2.19 | Input / Output pricing |
+| xai/grok-4.3 | $3.00 / $15.00 | Input / Output pricing |
 
 ## Code Examples
 
@@ -82,7 +82,7 @@ curl -X POST https://api.jarvisclaw.ai/v1/chat/completions \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "anthropic/claude-sonnet-4",
+    "model": "anthropic/claude-sonnet-4.6",
     "messages": [
       {"role": "user", "content": "Hello, how are you?"}
     ],
@@ -100,7 +100,7 @@ client = OpenAI(
 
 # Simple completion
 response = client.chat.completions.create(
-    model="anthropic/claude-sonnet-4",
+    model="anthropic/claude-sonnet-4.6",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "Explain quantum computing."},
@@ -110,7 +110,7 @@ print(response.choices[0].message.content)
 
 # Streaming
 stream = client.chat.completions.create(
-    model="anthropic/claude-sonnet-4",
+    model="anthropic/claude-sonnet-4.6",
     messages=[{"role": "user", "content": "Tell me a joke."}],
     stream=True,
 )
@@ -137,11 +137,11 @@ response = chat.complete("Explain quantum computing.")
 print(response)
 
 # With explicit model
-response = chat.complete("Explain quantum computing.", model="anthropic/claude-sonnet-4")
+response = chat.complete("Explain quantum computing.", model="anthropic/claude-sonnet-4.6")
 print(response)
 
 # Streaming
-for chunk in chat.stream("Tell me a joke.", model="openai/gpt-5.5"):
+for chunk in chat.stream("Tell me a joke.", model="openai/gpt-5.4-mini"):
     print(chunk, end="")
 ```
 
@@ -160,11 +160,11 @@ func main() {
 
     // Simple completion
     response, _ := cc.Complete(ctx, "Explain quantum computing.",
-        jc.WithChatModel("anthropic/claude-sonnet-4"))
+        jc.WithChatModel("anthropic/claude-sonnet-4.6"))
     fmt.Println(response)
 
     // Streaming
-    stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.5"))
+    stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.4-mini"))
     for chunk := range stream.Channel() {
         fmt.Print(chunk)
     }
@@ -192,11 +192,11 @@ func main() {
 
     // With explicit model
     response, _ = cc.Complete(ctx, "Explain quantum computing.",
-        jc.WithChatModel("anthropic/claude-sonnet-4"))
+        jc.WithChatModel("anthropic/claude-sonnet-4.6"))
     fmt.Println(response)
 
     // Streaming
-    stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.5"))
+    stream, _ := cc.Stream(ctx, "Tell me a joke.", jc.WithChatModel("openai/gpt-5.4-mini"))
     for chunk := range stream.Channel() {
         fmt.Print(chunk)
     }

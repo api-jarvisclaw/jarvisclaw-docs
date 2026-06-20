@@ -86,7 +86,7 @@ Get a firm quote with transaction calldata ready for signing. Includes EIP-712 t
 | `buyToken` | string | Yes | Token contract address to buy |
 | `sellAmount` | string | Yes | Amount to sell in base units |
 | `chainId` | integer | Yes | Target chain ID |
-| `takerAddress` | string | Yes | Taker wallet address (required for quote) |
+| `taker` | string | Yes | Taker wallet address (required for quote) |
 
 ### Response
 
@@ -208,13 +208,13 @@ buyToken=0x4200000000000000000000000000000000000006&\
 sellAmount=1000000000" \
   -H "Authorization: Bearer sk-your-api-key"
 
-# Get firm quote (requires takerAddress)
+# Get firm quote (requires taker)
 curl "https://api.jarvisclaw.ai/v1/marketplace/dex/quote?\
 chainId=8453&\
 sellToken=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&\
 buyToken=0x4200000000000000000000000000000000000006&\
 sellAmount=1000000000&\
-takerAddress=0xYourWalletAddress" \
+taker=0xYourWalletAddress" \
   -H "Authorization: Bearer sk-your-api-key"
 
 # Submit gasless swap
@@ -259,7 +259,7 @@ resp = requests.get(f"{BASE}/quote", headers=HEADERS, params={
     "sellToken": USDC_BASE,
     "buyToken": WETH_BASE,
     "sellAmount": "1000000000",
-    "takerAddress": "0xYourWalletAddress",
+    "taker": "0xYourWalletAddress",
 })
 quote = resp.json()
 
@@ -310,7 +310,7 @@ quote = client.call("dex", "/quote", params={
     "sellToken": USDC_BASE,
     "buyToken": WETH_BASE,
     "sellAmount": "1000000000",
-    "takerAddress": "0xYourWalletAddress",
+    "taker": "0xYourWalletAddress",
 })
 
 # Submit gasless (after signing permit2 externally)
@@ -361,7 +361,7 @@ func main() {
         "sellToken":    usdcBase,
         "buyToken":     wethBase,
         "sellAmount":   "1000000000",
-        "takerAddress": "0xYourWalletAddress",
+        "taker": "0xYourWalletAddress",
     }))
     if err != nil {
         panic(err)
@@ -429,7 +429,7 @@ func main() {
         "sellToken":    usdcBase,
         "buyToken":     wethBase,
         "sellAmount":   "1000000000",
-        "takerAddress": "0xYourWalletAddress",
+        "taker": "0xYourWalletAddress",
     }))
 
     // Sign + submit gasless swap

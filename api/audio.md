@@ -12,7 +12,7 @@ Convert text to spoken audio.
 
 ```json
 {
-  "model": "tts-1",
+  "model": "auto/tts",
   "input": "Hello, welcome to JarvisClaw!",
   "voice": "alloy"
 }
@@ -22,7 +22,7 @@ Convert text to spoken audio.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `model` | string | Yes | TTS model ID (`tts-1`, `tts-1-hd`) |
+| `model` | string | Yes | TTS model ID (`auto/tts`, `elevenlabs/flash-v2.5`, `elevenlabs/v3`, `elevenlabs/multilingual-v2`, `elevenlabs/turbo-v2.5`) |
 | `input` | string | Yes | Text to convert to speech (max 4096 chars) |
 | `voice` | string | Yes | Voice preset (e.g., `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer`) |
 | `response_format` | string | No | Audio format: `mp3` (default), `opus`, `aac`, `flac` |
@@ -45,7 +45,7 @@ client = OpenAI(
 )
 
 response = client.audio.speech.create(
-    model="tts-1-hd",
+    model="auto/tts",
     voice="nova",
     input="Hello, welcome to JarvisClaw!",
 )
@@ -137,7 +137,7 @@ func main() {
 curl https://api.jarvisclaw.ai/v1/audio/speech \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "tts-1", "input": "Hello!", "voice": "alloy"}' \
+  -d '{"model": "auto/tts", "input": "Hello!", "voice": "alloy"}' \
   --output output.mp3
 ```
 

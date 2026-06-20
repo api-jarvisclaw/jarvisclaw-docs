@@ -47,7 +47,7 @@ Get a real-time price snapshot for a stock on a specific exchange.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `market` | string | Yes | Exchange code (e.g., `nasdaq`, `nyse`, `lse`, `hkex`) |
+| `market` | string | Yes | Region code (e.g., `us`, `gb`, `hk`, `jp`) |
 | `symbol` | string | Yes | Ticker symbol (e.g., `AAPL`, `TSLA`, `NVDA`) |
 
 ### Response
@@ -55,7 +55,7 @@ Get a real-time price snapshot for a stock on a specific exchange.
 ```json
 {
   "symbol": "AAPL",
-  "market": "nasdaq",
+  "market": "us",
   "price": 189.45,
   "change": 2.15,
   "change_percent": 1.15,
@@ -131,13 +131,13 @@ Get real-time commodity price.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `symbol` | string | Yes | Commodity symbol (e.g., `GOLD`, `SILVER`, `WTI`, `NATGAS`) |
+| `symbol` | string | Yes | Commodity symbol in Pyth feed format (e.g., `XAU-USD`, `XAG-USD`, `WTI-USD`, `NATGAS-USD`) |
 
 ### Response
 
 ```json
 {
-  "symbol": "GOLD",
+  "symbol": "XAU-USD",
   "price": 2345.60,
   "unit": "USD/oz",
   "change_24h": 0.85,
@@ -152,8 +152,8 @@ Get real-time commodity price.
 ::: code-group
 
 ```bash [cURL]
-# Stock price (NVDA on NASDAQ) — $0.001
-curl "https://api.jarvisclaw.ai/v1/marketplace/markets/stocks/nasdaq/price/NVDA" \
+# Stock price (NVDA on US market) — $0.001
+curl "https://api.jarvisclaw.ai/v1/marketplace/markets/stocks/us/price/NVDA" \
   -H "Authorization: Bearer sk-your-api-key"
 
 # Crypto price (free)
@@ -165,7 +165,7 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/markets/fx/price/USD-JPY" \
   -H "Authorization: Bearer sk-your-api-key"
 
 # Commodity price (free)
-curl "https://api.jarvisclaw.ai/v1/marketplace/markets/commodity/price/WTI" \
+curl "https://api.jarvisclaw.ai/v1/marketplace/markets/commodity/price/WTI-USD" \
   -H "Authorization: Bearer sk-your-api-key"
 ```
 
@@ -176,7 +176,7 @@ BASE = "https://api.jarvisclaw.ai/v1/marketplace/markets"
 HEADERS = {"Authorization": "Bearer sk-your-api-key"}
 
 # Stock price — $0.001 per call
-resp = requests.get(f"{BASE}/stocks/nasdaq/price/AAPL", headers=HEADERS)
+resp = requests.get(f"{BASE}/stocks/us/price/AAPL", headers=HEADERS)
 aapl = resp.json()
 print(f"AAPL: ${aapl['price']} ({aapl['change_percent']:+.2f}%)")
 
@@ -191,14 +191,14 @@ fx = resp.json()
 print(f"EUR/USD: {fx['rate']} (bid: {fx['bid']}, ask: {fx['ask']})")
 
 # Commodity price (free)
-resp = requests.get(f"{BASE}/commodity/price/GOLD", headers=HEADERS)
+resp = requests.get(f"{BASE}/commodity/price/XAU-USD", headers=HEADERS)
 gold = resp.json()
 print(f"Gold: ${gold['price']}/{gold['unit'].split('/')[1]}")
 
 # Multi-stock portfolio check
 portfolio = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL"]
 for symbol in portfolio:
-    resp = requests.get(f"{BASE}/stocks/nasdaq/price/{symbol}", headers=HEADERS)
+    resp = requests.get(f"{BASE}/stocks/us/price/{symbol}", headers=HEADERS)
     data = resp.json()
     print(f"  {data['symbol']}: ${data['price']} ({data['change_percent']:+.2f}%)")
 ```
@@ -210,7 +210,7 @@ from jarvisclaw import MarketplaceClient
 client = MarketplaceClient(private_key="0x<agent-wallet-private-key>")
 
 # Stock price (auto-pays $0.001 via x402)
-aapl = client.call("markets", "/stocks/nasdaq/price/AAPL")
+aapl = client.call("markets", "/stocks/us/price/AAPL")
 print(f"AAPL: ${aapl['price']}")
 
 # Crypto (free — no x402 payment triggered)
@@ -222,13 +222,13 @@ eur = client.call("markets", "/fx/price/EUR-USD")
 print(f"EUR/USD: {eur['rate']}")
 
 # Commodity (free)
-gold = client.call("markets", "/commodity/price/GOLD")
+gold = client.call("markets", "/commodity/price/XAU-USD")
 print(f"Gold: ${gold['price']}/oz")
 
 # Agent portfolio monitoring loop
 import time
 while True:
-    nvda = client.call("markets", "/stocks/nasdaq/price/NVDA")
+    nvda = client.call("markets", "/stocks/us/price/NVDA")
     if nvda["price"] > 150:
         print(f"NVDA alert: ${nvda['price']}")
         break
@@ -250,7 +250,7 @@ func main() {
     mc, _ := jc.NewMarketplaceClient(jc.WithAPIKey("sk-your-api-key"))
 
     // Stock price
-    stock, _ := mc.Call(ctx, "markets", "/stocks/nasdaq/price/NVDA")
+    stock, _ := mc.Call(ctx, "markets", "/stocks/us/price/NVDA")
     fmt.Printf("NVDA: $%.2f (%+.2f%%)\n", stock["price"].(float64), stock["change_percent"].(float64))
 
     // Crypto price (free)
@@ -262,8 +262,8 @@ func main() {
     fmt.Printf("EUR-USD: %.4f\n", fx["rate"].(float64))
 
     // Commodity price (free)
-    commodity, _ := mc.Call(ctx, "markets", "/commodity/price/GOLD")
-    fmt.Printf("GOLD: $%.2f %s\n", commodity["price"].(float64), commodity["unit"].(string))
+    commodity, _ := mc.Call(ctx, "markets", "/commodity/price/XAU-USD")
+    fmt.Printf("Gold: $%.2f %s\n", commodity["price"].(float64), commodity["unit"].(string))
 }
 ```
 
@@ -290,7 +290,7 @@ func main() {
     }
 
     // Stock price (x402 pays automatically)
-    stock, _ := mc.Call(ctx, "markets", "/stocks/nasdaq/price/AAPL")
+    stock, _ := mc.Call(ctx, "markets", "/stocks/us/price/AAPL")
     fmt.Printf("AAPL: $%.2f\n", stock["price"].(float64))
 
     // Crypto (free — no payment needed)
@@ -299,7 +299,7 @@ func main() {
 
     // Agent price monitoring
     for {
-        nvda, _ := mc.Call(ctx, "markets", "/stocks/nasdaq/price/NVDA")
+        nvda, _ := mc.Call(ctx, "markets", "/stocks/us/price/NVDA")
         if nvda["price"].(float64) > 150 {
             fmt.Printf("NVDA alert: $%.2f\n", nvda["price"].(float64))
             break
@@ -313,22 +313,22 @@ func main() {
 
 ---
 
-## Supported Exchanges
+## Supported Markets
 
-| Code | Exchange | Region |
-|------|----------|--------|
-| `nasdaq` | NASDAQ | US |
-| `nyse` | New York Stock Exchange | US |
-| `lse` | London Stock Exchange | UK |
-| `hkex` | Hong Kong Exchange | HK |
-| `tse` | Tokyo Stock Exchange | JP |
-| `sse` | Shanghai Stock Exchange | CN |
-| `szse` | Shenzhen Stock Exchange | CN |
-| `asx` | Australian Securities Exchange | AU |
-| `tsx` | Toronto Stock Exchange | CA |
-| `bse` | Bombay Stock Exchange | IN |
-| `nse` | National Stock Exchange of India | IN |
-| `fra` | Frankfurt Stock Exchange | DE |
+| Code | Region | Notable Symbols |
+|------|--------|-----------------|
+| `us` | United States | AAPL, NVDA, TSLA, MSFT, GOOGL, AMZN |
+| `gb` | United Kingdom | SHEL, AZN, HSBA, ULVR |
+| `de` | Germany | SAP, SIE, ALV, BAS |
+| `fr` | France | MC, OR, SAN, AIR |
+| `nl` | Netherlands | ASML, INGA, PHIA |
+| `ie` | Ireland | CRH, KYGA, SKG |
+| `lu` | Luxembourg | ARCE, SES, RTL |
+| `hk` | Hong Kong | 0700, 9988, 0005, 1299 |
+| `jp` | Japan | 7203, 6758, 9984, 6861 |
+| `kr` | South Korea | 005930, 000660, 035420 |
+| `cn` | China | 600519, 601318, 000858 |
+| `ca` | Canada | RY, TD, SHOP, ENB |
 
 ---
 
