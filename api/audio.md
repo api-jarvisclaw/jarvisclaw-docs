@@ -30,27 +30,47 @@ Convert text to spoken audio.
 
 ### Response
 
-Returns raw audio bytes with the appropriate `Content-Type` header.
+Returns JSON with a `data[].url` field pointing to the generated audio file.
+
+```json
+{
+  "created": 1782225665,
+  "model": "elevenlabs/flash-v2.5",
+  "data": [
+    {
+      "url": "https://cdn.jarvisclaw.ai/media/media/audios/2026/06/23/QshFG9Df.mp3",
+      "format": "mp3",
+      "characters": 74
+    }
+  ]
+}
+```
+
+Download the audio from `data[0].url`. The file is hosted on CDN and available for 48 hours.
 
 ### Example
 
 ::: code-group
 
-```python [OpenAI SDK]
-from openai import OpenAI
+```python [Raw HTTP]
+import requests
 
-client = OpenAI(
-    base_url="https://api.jarvisclaw.ai/v1",
-    api_key="sk-your-api-key",
-)
+BASE = "https://api.jarvisclaw.ai/v1"
+HEADERS = {"Authorization": "Bearer sk-your-api-key", "Content-Type": "application/json"}
 
-response = client.audio.speech.create(
-    model="auto/tts",
-    voice="sarah",
-    input="Hello, welcome to JarvisClaw!",
-)
+# Generate speech — returns JSON with audio URL
+resp = requests.post(f"{BASE}/audio/speech", headers=HEADERS, json={
+    "model": "auto/tts",
+    "input": "Hello, welcome to JarvisClaw!",
+    "voice": "sarah",
+})
+data = resp.json()
+audio_url = data["data"][0]["url"]
 
-response.stream_to_file("output.mp3")
+# Download the audio file
+audio = requests.get(audio_url)
+with open("output.mp3", "wb") as f:
+    f.write(audio.content)
 ```
 
 ```python [JarvisClaw SDK (API Key)]
@@ -134,11 +154,15 @@ func main() {
 ```
 
 ```bash [cURL]
+# Returns JSON with audio URL (not raw bytes)
 curl https://api.jarvisclaw.ai/v1/audio/speech \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "auto/tts", "input": "Hello!", "voice": "sarah"}' \
-  --output output.mp3
+  -d '{"model": "auto/tts", "input": "Hello!", "voice": "sarah"}'
+# → {"data": [{"url": "https://cdn.jarvisclaw.ai/.../audio.mp3", "format": "mp3"}]}
+
+# Then download the audio file from the URL:
+curl -o output.mp3 "https://cdn.jarvisclaw.ai/.../audio.mp3"
 ```
 
 :::

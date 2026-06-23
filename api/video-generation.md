@@ -16,9 +16,9 @@ Submit a video generation job.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| model | string | Yes | Model ID: "bytedance/seedance-2.0-pro", "bytedance/seedance-2.0-fast", "bytedance/seedance-1.5-pro", "azure/sora-2" |
+| model | string | Yes | Model ID: "auto/video", "bytedance/seedance-2.0-pro", "bytedance/seedance-2.0-fast", "bytedance/seedance-1.5-pro", "azure/sora-2" |
 | prompt | string | Yes | Text description of the video to generate |
-| duration_seconds | integer | No | Duration (Seedance: 5-10s, Sora: 4/8/12s) (default: 5) |
+| duration_seconds | integer | No | Duration (Seedance: 5-10s, Sora: 4/8/12s only). Default: 5 for Seedance, 4 for Sora. **When using `auto/video`, use 4 — it may route to Sora which rejects 5.** |
 | image_url | string | No | Public HTTPS URL of seed image for image-to-video (animates the photo) |
 | real_face_asset_id | string | No | Enrolled RealFace/Portrait asset ID (ta_xxx) for character-consistent generation. Only works with Seedance 2.0/2.0-fast. |
 
@@ -72,9 +72,13 @@ Submit a video generation job.
 
 Poll video generation job status. Call every 5-10s until status is "completed" or "failed". Jobs remain retrievable for 48 hours after submission.
 
+::: tip Use the poll_url from the submission response
+The `poll_url` field in the submission response includes query parameters (`model`, `duration`, `sig`) that optimize polling. You can also poll with just the job ID path — both work.
+:::
+
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| id | string | Yes | Job ID returned from the generation request |
+| id | string | Yes | Job ID returned from the generation request (URL-encoded if contains `:`) |
 
 #### Response (in progress)
 

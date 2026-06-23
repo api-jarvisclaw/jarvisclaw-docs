@@ -31,24 +31,67 @@ Generate images from a text prompt.
 }
 ```
 
-#### Response
+#### Response (queued)
+
+Image generation is asynchronous. The initial response returns a job with `status: "queued"` and a `poll_url`. Poll every 5 seconds until `status` becomes `"completed"`.
 
 ```json
 {
-  "id": "47c11cc4-e210-4501-8e12-28269a665575",
-  "created": 1717200000,
+  "id": "1f3d6e67-c286-4ed0-a9c1-683f197a7412",
+  "object": "image.generation.job",
+  "status": "queued",
+  "model": "openai/gpt-image-2",
+  "size": "1024x1024",
+  "n": 1,
+  "price": {
+    "amount": "0.063000",
+    "currency": "USD"
+  },
+  "payment_status": "verified",
+  "created": 1782225494,
+  "poll_url": "/v1/images/generations/1f3d6e67-c286-4ed0-a9c1-683f197a7412"
+}
+```
+
+#### Polling: GET /v1/images/generations/:id
+
+Poll the `poll_url` with your auth header every 5 seconds.
+
+**In progress:**
+```json
+{
+  "id": "1f3d6e67-c286-4ed0-a9c1-683f197a7412",
+  "object": "image.generation.job",
+  "status": "in_progress",
+  "model": "openai/gpt-image-2"
+}
+```
+
+**Completed:**
+```json
+{
+  "id": "1f3d6e67-c286-4ed0-a9c1-683f197a7412",
+  "object": "image.generation.job",
+  "status": "completed",
+  "model": "openai/gpt-image-2",
+  "created": 1782225464,
   "data": [
     {
-      "url": "https://cdn.jarvisclaw.ai/media/media/images/2026/06/20/aef2a95d.png",
+      "url": "https://cdn.jarvisclaw.ai/media/media/images/2026/06/23/7423018f.png",
       "source_url": "data:image/png",
       "backed_up": true
     }
   ],
   "price": {
-    "amount": "0.021000",
+    "amount": "0.063000",
     "currency": "USD"
   }
 }
+```
+
+::: tip
+Typical generation time is 20-40 seconds. Jobs are retrievable for 48 hours after submission.
+:::
 ```
 
 ### POST /v1/images/edits
@@ -103,6 +146,7 @@ model: "openai/gpt-image-1"
 ::: code-group
 
 ```bash [cURL]
+# Step 1: Submit generation request
 curl -X POST https://api.jarvisclaw.ai/v1/images/generations \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
@@ -112,25 +156,38 @@ curl -X POST https://api.jarvisclaw.ai/v1/images/generations \
     "size": "1024x1024",
     "quality": "hd"
   }'
+# → {"id": "cbdf0464-...", "status": "queued", "poll_url": "/v1/images/generations/cbdf0464-..."}
+
+# Step 2: Poll every 5s until completed
+curl https://api.jarvisclaw.ai/v1/images/generations/cbdf0464-0ca8-476e-8bf9-e0d66dc21efa \
+  -H "Authorization: Bearer sk-your-api-key"
+# → {"status": "completed", "data": [{"url": "https://cdn.jarvisclaw.ai/...png"}]}
 ```
 
 ```python [Python (API Key)]
-from openai import OpenAI
+import requests
+import time
 
-client = OpenAI(
-    base_url="https://api.jarvisclaw.ai/v1",
-    api_key="sk-your-api-key",
-)
+BASE = "https://api.jarvisclaw.ai/v1"
+HEADERS = {"Authorization": "Bearer sk-your-api-key", "Content-Type": "application/json"}
 
-response = client.images.generate(
-    model="openai/gpt-image-1",
-    prompt="A futuristic cityscape at sunset with flying cars",
-    size="1024x1024",
-    quality="hd",
-    n=1,
-)
+# Step 1: Submit
+resp = requests.post(f"{BASE}/images/generations", headers=HEADERS, json={
+    "model": "openai/gpt-image-1",
+    "prompt": "A futuristic cityscape at sunset with flying cars",
+    "size": "1024x1024",
+    "quality": "hd",
+})
+job = resp.json()
+poll_url = BASE.split("/v1")[0] + job["poll_url"]
 
-print(response.data[0].url)
+# Step 2: Poll until completed (~20-40s)
+while True:
+    time.sleep(5)
+    result = requests.get(poll_url, headers=HEADERS).json()
+    if result["status"] == "completed":
+        print(result["data"][0]["url"])
+        break
 ```
 
 ```python [Python (x402 Agent)]
