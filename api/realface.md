@@ -66,8 +66,8 @@ Start a phone-based liveness verification session. Returns an H5 link that the s
   "next_steps": {
     "1": "Have the real person scan h5_link as a QR code on their phone.",
     "2": "They complete a brief liveness check (nod + blink, ~1 minute).",
-    "3": "Poll GET /api/v1/realface/status?groupId=… until status === 'active'.",
-    "4": "Call POST /api/v1/realface/enroll with x402 payment to upload the face photo and finalize."
+    "3": "Poll GET /v1/marketplace/realface/status?groupId=… until status === 'active'.",
+    "4": "Call POST /v1/marketplace/realface/enroll with x402 payment to upload the face photo and finalize."
   }
 }
 ```
