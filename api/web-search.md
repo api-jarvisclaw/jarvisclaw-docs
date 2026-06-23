@@ -71,9 +71,13 @@ Search the web using neural semantic ranking. Returns results ranked by meaning,
 }
 ```
 
-## POST /find-similar
+## POST /find-similar <Badge type="warning" text="Coming Soon" />
 
 Find web pages similar to a given URL. Useful for competitive research, finding related content, and discovering alternatives.
+
+::: warning
+This endpoint is not yet available. It will return `404` until enabled. Use `/search` with a descriptive query as an alternative.
+:::
 
 ### Parameters
 
@@ -256,13 +260,13 @@ resp = requests.post(f"{BASE}/search", headers=HEADERS, json={
 for result in resp.json()["results"]:
     print(f"{result['title']}: {result['url']}")
 
-# Find similar pages
-resp = requests.post(f"{BASE}/find-similar", headers=HEADERS, json={
-    "url": "https://github.com/langchain-ai/langchain",
-    "numResults": 5,
-})
-for result in resp.json()["results"]:
-    print(f"{result['title']} (score: {result['score']})")
+# Find similar pages (coming soon — endpoint not yet available)
+# resp = requests.post(f"{BASE}/find-similar", headers=HEADERS, json={
+#     "url": "https://github.com/langchain-ai/langchain",
+#     "numResults": 5,
+# })
+# for result in resp.json()["results"]:
+#     print(f"{result['title']} (score: {result['score']})")
 
 # Extract page contents
 resp = requests.post(f"{BASE}/contents", headers=HEADERS, json={
@@ -299,10 +303,10 @@ results = search.query("best open source LLM frameworks 2026", num_results=5)
 for r in results:
     print(f"{r.title}: {r.url}")
 
-# Find similar pages
-similar = search.find_similar("https://github.com/langchain-ai/langchain", num_results=5)
-for r in similar:
-    print(f"{r.title}: {r.url}")
+# Find similar pages (coming soon — not yet available)
+# similar = search.find_similar("https://github.com/langchain-ai/langchain", num_results=5)
+# for r in similar:
+#     print(f"{r.title}: {r.url}")
 
 # Extract page contents
 contents = search.contents(["https://example.com/article-1", "https://example.com/article-2"])

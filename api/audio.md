@@ -77,8 +77,8 @@ audio = AudioClient(private_key="0x<evm-private-key>")
 # ─── Option B: Solana ───
 # audio = AudioClient(private_key="<solana-bs58-keypair>")
 
-# Text-to-speech with explicit model
-result = audio.speech("Hello, welcome to JarvisClaw!", model="auto/tts", voice="sarah")
+# Text-to-speech (use explicit model for x402 wallets)
+result = audio.speech("Hello, welcome to JarvisClaw!", model="elevenlabs/flash-v2.5", voice="sarah")
 
 with open("output.mp3", "wb") as f:
     f.write(result.content)
@@ -124,8 +124,9 @@ func main() {
     // x402 Agent wallet — pays per-call via USDC on Base (Chain ID 8453)
     ac, _ := jc.NewAudioClient(jc.WithPrivateKey("0x<evm-private-key>"))
 
-    // Text-to-speech
+    // Text-to-speech (explicit model required for x402)
     result, _ := ac.Speech(ctx, "Hello, welcome to JarvisClaw!",
+        jc.WithModel("elevenlabs/flash-v2.5"),
         jc.WithVoice("sarah"))
 
     os.WriteFile("output.mp3", result.Data, 0644)

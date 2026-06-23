@@ -116,7 +116,6 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
     "currency": "USD"
   }
 }
-}
 ```
 
 ## Pricing
