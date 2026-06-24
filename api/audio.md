@@ -261,7 +261,7 @@ curl https://api.jarvisclaw.ai/v1/audio/transcriptions \
 
 ## Music Generation
 
-`POST /v1/audio/music`
+`POST /v1/audio/generations`
 
 Generate music from a text prompt using the JarvisClaw SDK.
 

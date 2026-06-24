@@ -190,7 +190,7 @@ curl -X POST https://api.jarvisclaw.ai/v1/marketplace/compute/sandbox/create \
 curl -X POST https://api.jarvisclaw.ai/v1/marketplace/compute/sandbox/exec \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"sandbox_id": "sb_a1b2c3d4e5", "command": "python -c \"print(2+2)\""}'
+  -d '{"sandbox_id": "sb_a1b2c3d4e5", "command": ["python", "-c", "print(2+2)"]}'
 
 # Check status
 curl -X POST https://api.jarvisclaw.ai/v1/marketplace/compute/sandbox/status \

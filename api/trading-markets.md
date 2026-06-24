@@ -182,12 +182,12 @@ HEADERS = {"Authorization": "Bearer sk-your-api-key"}
 # Stock price — $0.001 per call
 resp = requests.get(f"{BASE}/stocks/us/price/AAPL", headers=HEADERS)
 aapl = resp.json()
-print(f"AAPL: ${aapl['price']} ({aapl['change_percent']:+.2f}%)")
+print(f"AAPL: ${aapl['price']} (source: {aapl['source']})")
 
 # Crypto price (free)
 resp = requests.get(f"{BASE}/crypto/price/BTC-USD", headers=HEADERS)
 btc = resp.json()
-print(f"BTC: ${btc['price']:,.2f} (24h: {btc['change_24h']:+.2f}%)")
+print(f"BTC: ${btc['price']:,.2f} (source: {btc['source']})")
 
 # Forex rate (free)
 resp = requests.get(f"{BASE}/fx/price/EUR-USD", headers=HEADERS)
@@ -204,7 +204,7 @@ portfolio = ["AAPL", "NVDA", "TSLA", "MSFT", "GOOGL"]
 for symbol in portfolio:
     resp = requests.get(f"{BASE}/stocks/us/price/{symbol}", headers=HEADERS)
     data = resp.json()
-    print(f"  {data['symbol']}: ${data['price']} ({data['change_percent']:+.2f}%)")
+    print(f"  {data['symbol']}: ${data['price']} (confidence: {data['confidence']})")
 ```
 
 ```python [Python (x402 Agent)]
@@ -255,11 +255,11 @@ func main() {
 
     // Stock price
     stock, _ := mc.Call(ctx, "markets", "/stocks/us/price/NVDA")
-    fmt.Printf("NVDA: $%.2f (%+.2f%%)\n", stock["price"].(float64), stock["change_percent"].(float64))
+    fmt.Printf("NVDA: $%.2f (confidence: %.5f)\n", stock["price"].(float64), stock["confidence"].(float64))
 
     // Crypto price (free)
     crypto, _ := mc.Call(ctx, "markets", "/crypto/price/BTC-USD")
-    fmt.Printf("BTC-USD: $%.2f (24h: %+.2f%%)\n", crypto["price"].(float64), crypto["change_24h"].(float64))
+    fmt.Printf("BTC-USD: $%.2f (source: %s)\n", crypto["price"].(float64), crypto["source"].(string))
 
     // Forex rate (free)
     fx, _ := mc.Call(ctx, "markets", "/fx/price/EUR-USD")

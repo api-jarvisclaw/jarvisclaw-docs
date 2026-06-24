@@ -305,7 +305,6 @@ curl -X POST https://api.jarvisclaw.ai/v1/marketplace/phone/numbers/list \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{}'
-  -d '{}'
 ```
 
 ```python [Python (API Key)]
