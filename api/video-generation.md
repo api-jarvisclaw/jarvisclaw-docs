@@ -139,17 +139,20 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 
 ### Resolution Multiplier (Seedance)
 
-Higher resolutions consume more tokens upstream. Approximate cost examples for Seedance 2.0 Pro:
+Higher resolutions consume more tokens upstream. The multiplier scales roughly with pixel count relative to 720p.
 
-| Resolution | Duration | Estimated Cost |
-|------------|----------|----------------|
-| 720p | 5s | ~$1.49 |
-| 720p | 15s | ~$4.47 |
-| 4K | 5s | ~$14.35 |
-| 4K | 15s | ~$43.04 |
+| Resolution | Multiplier | 5s (Pro) | 10s (Pro) | 15s (Pro) |
+|------------|-----------|----------|-----------|-----------|
+| 720p | 1.0× | $1.49 | $2.98 | $4.47 |
+| 1080p | ~2.25× | $3.35 | $6.70 | $10.05 |
+| 2K | ~4.0× | $5.96 | $11.91 | $17.87 |
+| 4K | ~9.6× | $14.35 | $28.69 | $43.04 |
 
 ::: tip
-4K generation costs approximately 9.6× the 720p base price due to upstream token scaling. Use `720p` for drafts and iterate before committing to high-resolution renders.
+4K 15s generation costs ~$43 per clip. Use `720p` for drafts and iterate before committing to high-resolution renders.
+
+For Seedance 2.0 Fast, multiply by ~0.80× (base $1.19/5s at 720p).
+For Seedance 1.5 Pro, multiply by ~0.31× (base $0.46/5s at 720p, i2v only).
 :::
 ## Code Examples
 
@@ -337,7 +340,7 @@ func main() {
 - image_url and real_face_asset_id are mutually exclusive — use one or the other, not both
 - Generation takes 60-180 seconds — use async polling, not synchronous waiting
 - Maximum duration: Seedance 5-15s per clip, Sora 4/8/12s per clip
-- Output resolution fixed at 720p (1280x720) — no 1080p or 4K
+- Output resolution defaults to 720p; higher resolutions (1080p, 2K, 4K) are available via the `resolution` parameter but cost significantly more (see Pricing)
 - RealFace enrollment required separately via /docs/api/realface before using real_face_asset_id
 - Job results (MP4 URLs) are retrievable for 48 hours after submission — even if your client disconnects
 - Status sync lag: upstream may report "in_progress" for a few minutes after actual completion — keep polling, do not cancel early
