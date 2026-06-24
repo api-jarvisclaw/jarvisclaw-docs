@@ -46,7 +46,7 @@ Create a chat completion.
 | prompt_cache | boolean | No | Enable prompt caching on Anthropic models |
 | logit_bias | object | No | Token ID to bias value mapping (-100 to 100) |
 | user | string | No | Unique end-user identifier |
-| service_tier | string | No | Upstream service level (e.g., `"default"`, `"flex"`). Filtered by default; requires channel-level `allow_service_tier` |
+| service_tier | string | No | Service level preference (e.g., `"default"`, `"flex"`). Controls quality/speed tradeoff for supported models |
 | modalities | array | No | Output modalities: `["text"]` or `["text", "audio"]` |
 | audio | object | No | Audio output config: `{"voice": "alloy", "format": "wav"}`. Requires `modalities` to include `"audio"` |
 | store | boolean | No | Whether to store this request for model distillation/evals (OpenAI). Default: allowed to pass through |
@@ -126,7 +126,7 @@ These parameters are transparently forwarded to the upstream provider when appli
 | completion_tokens | yes | Output tokens; includes thinking/reasoning for all providers |
 | total_tokens | yes | Sum of prompt + completion |
 | prompt_tokens_details.cached_tokens | when cache hit | Prompt tokens read from cache (OpenAI convention) |
-| prompt_tokens_details.cached_creation_tokens | when cache write | Prompt tokens written to cache this turn (BlockRun extension) |
+| prompt_tokens_details.cached_creation_tokens | when cache write | Prompt tokens written to cache this turn (JarvisClaw extension) |
 | cache_read_input_tokens | when cache hit | Same as `prompt_tokens_details.cached_tokens` — Anthropic/Bedrock native label |
 | cache_creation_input_tokens | when cache write | Same as `prompt_tokens_details.cached_creation_tokens` — Anthropic/Bedrock native label |
 | completion_tokens_details.reasoning_tokens | when reasoning | OpenAI GPT-5.x / o-series only; forwarded verbatim. Not available for Anthropic/Bedrock (thinking tokens already included in `completion_tokens`) |

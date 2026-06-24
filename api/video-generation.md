@@ -107,15 +107,12 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
   "data": [
     {
       "url": "https://cdn.jarvisclaw.ai/media/media/videos/2026/06/20/video_ae260c45-15b82b3e.mp4",
-      "source_url": "https://ark-acg-ap-southeast-1.tos-ap-southeast-1.volces.com/...",
       "duration_seconds": 5,
-      "request_id": "video_ae260c45bdb7453c8bbe5a47",
-      "backed_up": true
+      "request_id": "video_ae260c45bdb7453c8bbe5a47"
     }
   ],
   "usage": {
-    "total_tokens": 108900,
-    "token_source": "upstream"
+    "total_tokens": 108900
   },
   "price": {
     "amount": "1.275372",

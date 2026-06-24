@@ -161,9 +161,7 @@ Poll the `poll_url` with your auth header every 5 seconds.
   "created": 1782225464,
   "data": [
     {
-      "url": "https://cdn.jarvisclaw.ai/media/media/images/2026/06/23/7423018f.png",
-      "source_url": "data:image/png",
-      "backed_up": true
+      "url": "https://cdn.jarvisclaw.ai/media/media/images/2026/06/23/7423018f.png"
     }
   ],
   "price": {

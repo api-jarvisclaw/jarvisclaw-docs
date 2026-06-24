@@ -36,7 +36,6 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/surf/exchange/price?pair=BTC-USDT
 
 ```json
 {
-  "$schema": "https://api.asksurf.ai/schemas/SimpleListResponseExchangePriceItem.json",
   "data": [
     {
       "exchange": "binance",
@@ -51,7 +50,6 @@ curl "https://api.jarvisclaw.ai/v1/marketplace/surf/exchange/price?pair=BTC-USDT
       "timestamp": 1717200000
     }
   ]
-}
 }
 ```
 
