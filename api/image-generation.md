@@ -13,11 +13,95 @@ Generate images from a text prompt.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| model | string | No | Model identifier (e.g. "openai/gpt-image-1", "google/nano-banana") (default: openai/gpt-image-1) |
+| model | string | Yes | Model identifier (see Available Models below) |
 | prompt | string | Yes | Text description of the image to generate |
-| size | string | No | Image dimensions (e.g. "1024x1024", "1792x1024") (default: 1024x1024) |
-| quality | string | No | Image quality ("standard" or "hd") (default: standard) |
-| n | integer | No | Number of images to generate (1-4) (default: 1) |
+| n | integer | No | Number of images to generate (default: 1) |
+| size | string | No | Image dimensions (default: "1024x1024") |
+| quality | string | No | "standard" or "hd" (model-dependent) |
+| response_format | string | No | Output format: "url" or "b64_json" (default: "url") |
+| style | string | No | Image style: "vivid" or "natural" (DALL·E 3 only) |
+| user | string | No | Unique identifier for the end-user |
+| background | string | No | Background mode: "transparent" or "opaque" (gpt-image-1+) |
+| output_format | string | No | File format: "png", "jpeg", "webp" (gpt-image-1+) |
+| output_compression | integer | No | Compression level 0–100 for lossy formats (jpeg/webp) |
+| moderation | string | No | Content moderation level: "auto" or "low" |
+| watermark | boolean | No | Whether to add an invisible watermark (default: true) |
+
+#### Image Editing Parameters
+
+These additional parameters apply to `/v1/images/edits`:
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| images | array | Yes | Input image(s) for editing (base64 or URL) |
+| mask | string/file | No | Mask image indicating areas to edit (transparent = edit region) |
+| input_fidelity | string | No | How closely to follow the input: "low", "medium", "high" |
+| partial_images | integer | No | Number of partial/progress images to return during generation |
+
+#### Available Models
+
+| Model ID | Provider | Sizes | Price |
+|----------|----------|-------|-------|
+| openai/gpt-image-1 | OpenAI | 1024x1024, 1536x1024, 1024x1536 | $0.021 |
+| openai/gpt-image-2 | OpenAI | 1024x1024, 1536x1024, 1024x1536 | $0.063 |
+| google/nano-banana | Google | 1024x1024 | $0.053 |
+| google/nano-banana-pro | Google | 1024x1024, 2048x2048, 4096x4096 | $0.105 |
+| zai/cogview-4 | Zhipu AI | 512x512 – 1440x1440 (flexible) | $0.015 |
+| xai/grok-imagine-image | xAI | 1024x1024 | $0.021 |
+| xai/grok-imagine-image-pro | xAI | 1024x1024 | $0.074 |
+
+#### CogView-4 Sizes
+
+`zai/cogview-4` supports flexible sizes (multiples of 16, max 1440×1440):
+
+| Size | Use Case |
+|------|----------|
+| 512x512 | Thumbnails, icons |
+| 768x768 | Social media |
+| 1024x1024 | Standard (default) |
+| 768x1344 | Portrait / mobile |
+| 1344x768 | Landscape / banner |
+| 1440x1440 | High resolution |
+
+#### Hybrid Sync/Async Flow
+
+This endpoint is **hybrid**: fast generations complete synchronously, slow ones switch to an async job you poll.
+
+**Fast path (≤30s — most models):**
+Generation finishes inline. The gateway settles payment and returns `200` with the standard `{ created, data: [...] }` body. Charged at this moment only.
+
+**Slow path (>30s — e.g. `openai/gpt-image-2` under load):**
+The gateway returns `202` with an async job envelope:
+
+```json
+{
+  "id": "img_8f3a...",
+  "object": "image.generation.job",
+  "status": "queued",
+  "model": "openai/gpt-image-2",
+  "size": "1024x1024",
+  "n": 1,
+  "price": { "amount": "0.063000", "currency": "USD" },
+  "payment_status": "verified",
+  "created": 1706000000,
+  "poll_url": "/api/v1/images/generations/img_8f3a..."
+}
+```
+
+Poll `GET {poll_url}` every 2–5s with a payment header signed by the same wallet. Status transitions: `queued` → `in_progress` → `completed` | `failed`.
+
+- `202` running: `{ id, object, status: "queued" | "in_progress", model, payment_status: "verified" }`
+- `200` completed (charged here): standard body + `price` + `payment: { status: "settled", tx_hash, network }`
+- `200` failed (not charged): `{ id, object, status: "failed", model, error, payment_status: "not_charged" }`
+
+#### Settlement Guarantees
+
+| Guarantee | Meaning |
+|-----------|---------|
+| `payment_status: "verified"` | Signature/authorization checked only — not a charge |
+| Upstream fails (`status: "failed"`) | `payment_status: "not_charged"` — no USDC transferred |
+| You never poll | Nothing settles; authorization expires. Not charged |
+| Idempotent re-polls | Already-settled job returns same URLs (`payment.status: "already_settled"`) — never double-charged |
 
 #### Request
 

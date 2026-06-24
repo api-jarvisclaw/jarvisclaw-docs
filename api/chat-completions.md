@@ -10,17 +10,72 @@ OpenAI-compatible chat completions endpoint supporting 200+ models across all ma
 
 Create a chat completion.
 
-#### Parameters
+#### Headers
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| model | string | Yes | Model identifier (e.g. "openai/gpt-5.5", "anthropic/claude-sonnet-4.6") |
-| messages | array | Yes | Array of message objects with role and content |
-| max_tokens | integer | No | Maximum number of tokens to generate (default: 4096) |
-| temperature | number | No | Sampling temperature (0-2) (default: 1.0) |
-| top_p | number | No | Nucleus sampling parameter (default: 1.0) |
+| Header | Required | Description |
+|--------|----------|-------------|
+| Authorization | Yes | `Bearer sk-your-api-key` |
+| Content-Type | Yes | Must be `application/json` |
+| PAYMENT-SIGNATURE | Conditional | Base64-encoded x402 payment payload (required after 402, x402 v2) |
+
+#### Body Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| model | string | Yes | Model ID (e.g., `openai/gpt-5.5`) |
+| messages | array | Yes | Array of message objects |
+| max_tokens | integer | No | Maximum tokens to generate (default: 1024) |
+| max_completion_tokens | integer | No | Max output tokens including reasoning (for o-series / reasoning models) |
+| temperature | number | No | Sampling temperature (0-2) |
+| top_p | number | No | Nucleus sampling parameter |
+| top_k | integer | No | Top-K sampling (provider-dependent) |
 | stream | boolean | No | Stream partial responses via SSE (default: false) |
+| stream_options | object | No | `{"include_usage": true}` to receive token counts in stream |
+| stop | string or array | No | Stop sequence(s) |
+| n | integer | No | Number of completions to generate (default: 1) |
+| frequency_penalty | number | No | Penalize repeated tokens (-2.0 to 2.0) |
+| presence_penalty | number | No | Penalize tokens already present (-2.0 to 2.0) |
 | tools | array | No | List of tool/function definitions for function calling |
+| tool_choice | string or object | No | Controls tool use: `"auto"`, `"none"`, or specific tool |
+| parallel_tool_calls | boolean | No | Whether to run tool calls in parallel (default: true) |
+| response_format | object | No | `{"type": "json_object"}` or `{"type": "json_schema", "json_schema": {...}}` |
+| seed | number | No | Deterministic sampling seed |
+| reasoning_effort | string | No | `"low"`, `"medium"`, or `"high"` — controls thinking depth (o-series models) |
+| logprobs | boolean | No | Return log probabilities of output tokens |
+| top_logprobs | integer | No | Number of top logprobs per token (0-20) |
+| prompt_cache | boolean | No | Enable prompt caching on Anthropic models |
+| logit_bias | object | No | Token ID to bias value mapping (-100 to 100) |
+| user | string | No | Unique end-user identifier |
+| service_tier | string | No | Upstream service level (e.g., `"default"`, `"flex"`). Filtered by default; requires channel-level `allow_service_tier` |
+| modalities | array | No | Output modalities: `["text"]` or `["text", "audio"]` |
+| audio | object | No | Audio output config: `{"voice": "alloy", "format": "wav"}`. Requires `modalities` to include `"audio"` |
+| store | boolean | No | Whether to store this request for model distillation/evals (OpenAI). Default: allowed to pass through |
+| metadata | object | No | Arbitrary key-value metadata attached to the request |
+| prediction | object | No | Predicted output for speculative decoding (OpenAI) |
+| web_search_options | object | No | Web search configuration for grounded responses (Claude/xAI) |
+
+#### Provider-Specific Parameters
+
+These parameters are transparently forwarded to the upstream provider when applicable:
+
+| Parameter | Provider | Description |
+|-----------|----------|-------------|
+| enable_thinking | Qwen | Enable extended thinking mode |
+| think | Ollama | Enable thinking/reasoning output |
+| enable_search | Qwen | Enable web search augmentation |
+| search_parameters | xAI (Grok) | Search configuration for grounded responses |
+| vl_high_resolution_images | Qwen-VL | Enable high-resolution image processing |
+| reasoning_split | Minimax | Control reasoning output splitting |
+
+#### Message Object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| role | string | One of: `system`, `user`, `assistant`, `tool` |
+| content | string or array | The message content (string or content parts for vision) |
+| name | string | Optional name for the participant |
+| tool_calls | array | Tool calls made by the assistant (assistant messages only) |
+| tool_call_id | string | ID of the tool call this message responds to (tool messages only) |
 
 #### Request Example
 
@@ -62,6 +117,53 @@ Create a chat completion.
   }
 }
 ```
+
+#### Usage Fields
+
+| Field | Always present | Notes |
+|-------|---------------|-------|
+| prompt_tokens | yes | Full prompt size; cache reads already folded in |
+| completion_tokens | yes | Output tokens; includes thinking/reasoning for all providers |
+| total_tokens | yes | Sum of prompt + completion |
+| prompt_tokens_details.cached_tokens | when cache hit | Prompt tokens read from cache (OpenAI convention) |
+| prompt_tokens_details.cached_creation_tokens | when cache write | Prompt tokens written to cache this turn (BlockRun extension) |
+| cache_read_input_tokens | when cache hit | Same as `prompt_tokens_details.cached_tokens` — Anthropic/Bedrock native label |
+| cache_creation_input_tokens | when cache write | Same as `prompt_tokens_details.cached_creation_tokens` — Anthropic/Bedrock native label |
+| completion_tokens_details.reasoning_tokens | when reasoning | OpenAI GPT-5.x / o-series only; forwarded verbatim. Not available for Anthropic/Bedrock (thinking tokens already included in `completion_tokens`) |
+
+**Protocol naming convention:**
+
+- **Claude native** `/v1/messages`: `usage.input_tokens`, `usage.output_tokens`, `usage.cache_creation_input_tokens`, `usage.cache_read_input_tokens`
+- **OpenAI-compat** `/v1/chat/completions`: `usage.prompt_tokens_details.cached_tokens` (reads), `usage.prompt_tokens_details.cached_creation_tokens` (writes), `usage.completion_tokens_details.reasoning_tokens` (reasoning)
+
+**Enabling prompt caching on Anthropic models:** Pass `"prompt_cache": true` in the request body, or embed `cache_control` blocks in your message content directly — both are honored.
+
+#### Payment Required (402)
+
+When you first make a request without payment (x402 mode), you'll receive:
+
+```json
+{
+  "error": "Payment Required",
+  "message": "This endpoint requires x402 payment",
+  "price": {
+    "amount": "0.001000",
+    "currency": "USD",
+    "breakdown": {
+      "inputCost": "0.000012",
+      "outputCost": "0.000600",
+      "margin": "0%"
+    }
+  },
+  "paymentInfo": {
+    "network": "base",
+    "asset": "USDC",
+    "x402Version": 2
+  }
+}
+```
+
+The `X-Payment-Required` header contains the full payment requirements. 402 is the normal flow, not an error — the first request returns a price quote. Sign it and retry with the `PAYMENT-SIGNATURE` header to get your completion. The SDKs do this round-trip automatically.
 
 ## Pricing
 

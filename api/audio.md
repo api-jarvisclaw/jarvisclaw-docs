@@ -22,11 +22,24 @@ Convert text to spoken audio.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `model` | string | Yes | TTS model ID (`auto/tts`, `elevenlabs/flash-v2.5`, `elevenlabs/v3`, `elevenlabs/multilingual-v2`, `elevenlabs/turbo-v2.5`) |
-| `input` | string | Yes | Text to convert to speech (max 4096 chars) |
-| `voice` | string | Yes | Voice alias. ElevenLabs voices: `sarah`, `george`, `charlie`, `charlotte`, `aria`. Query available voices via `GET /v1/audio/voices`. |
-| `response_format` | string | No | Audio format: `mp3` (default), `opus`, `aac`, `flac` |
-| `speed` | float | No | Speed multiplier (0.25 to 4.0). Default: `1.0` |
+| `model` | string | No | TTS model ID (default: `elevenlabs/flash-v2.5`). See Available Models below |
+| `input` | string | Yes | Text to synthesize (max length depends on model — see table) |
+| `voice` | string | No | Voice alias (e.g. `sarah`, `george`, `charlie`, `charlotte`, `aria`) or raw ElevenLabs `voice_id`. Default: `sarah`. Query available voices via `GET /v1/audio/voices` |
+| `instructions` | string | No | System-level instructions to guide speech style (e.g. "Speak in a warm, friendly tone") — supported by gpt-4o-mini-tts and newer |
+| `response_format` | string | No | Audio format: `mp3` (default), `opus`, `pcm`, `wav` |
+| `speed` | float | No | Playback speed (0.7 to 1.2). Default: `1.0` |
+| `stream_format` | string | No | Streaming format. Set to `sse` to enable Server-Sent Events streaming of audio chunks |
+| `metadata` | object | No | Optional metadata key-value pairs attached to the request |
+
+#### Available Models
+
+| Model ID | Price | Max Input | Best For |
+|----------|-------|-----------|----------|
+| `elevenlabs/flash-v2.5` | $0.05 / 1k chars | 40,000 chars | Real-time voice agents (~75ms latency) |
+| `elevenlabs/turbo-v2.5` | $0.05 / 1k chars | 40,000 chars | Balanced quality/latency |
+| `elevenlabs/multilingual-v2` | $0.10 / 1k chars | 10,000 chars | Studio-grade narration |
+| `elevenlabs/v3` | $0.10 / 1k chars | 5,000 chars | Highest quality, newest model |
+| `auto/tts` | varies | varies | Auto-routes to best available model |
 
 ### Response
 

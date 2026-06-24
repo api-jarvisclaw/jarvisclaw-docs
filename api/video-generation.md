@@ -16,11 +16,17 @@ Submit a video generation job.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| model | string | Yes | Model ID: "bytedance/seedance-2.0-pro", "bytedance/seedance-2.0-fast", "bytedance/seedance-1.5-pro", "azure/sora-2" |
+| model | string | No | Video model ID (default: `xai/grok-imagine-video`). See Available Models below |
 | prompt | string | Yes | Text description of the video to generate |
-| duration_seconds | integer | No | Duration (Seedance: 5-10s, Sora: 4/8/12s) (default: 5) |
-| image_url | string | No | Public HTTPS URL of seed image for image-to-video (animates the photo) |
-| real_face_asset_id | string | No | Enrolled RealFace/Portrait asset ID (ta_xxx) for character-consistent generation. Only works with Seedance 2.0/2.0-fast. |
+| duration_seconds | integer | No | Duration to bill for. Must respect model's max (Seedance: 5-15s, Sora: discrete {4,8,12}s). Default: model default |
+| image_url | string | No | Seed image URL for image-to-video. For `azure/sora-2` the image is resized server-side and must not contain a human face. Mutually exclusive with `real_face_asset_id` |
+| real_face_asset_id | string | No | Character/face reference asset (`ta_xxxxxx`) from Virtual Portrait or RealFace. Seedance 2.0/2.0-fast only. Mutually exclusive with `image_url` |
+| resolution | string | No | `360p` / `480p` / `540p` / `720p` / `1080p` / `1K` / `2K` / `4K`. Seedance only — defaults to `720p`. Higher resolutions cost more tokens upstream |
+| aspect_ratio | string | No | `adaptive` / `16:9` / `9:16` / `1:1` / `4:3` / `3:4` / `21:9` / `9:21`. Seedance only — ignored by Grok |
+| generate_audio | boolean | No | Synced audio track. Seedance default: `true` for text-to-video, `false` for image/face-conditioned. Pass explicitly to override. Ignored by Grok |
+| seed | integer | No | Reproducibility seed (Seedance). Same seed + prompt + params ≈ same clip |
+| watermark | boolean | No | Embed upstream Seedance watermark. Off by default at the gateway |
+| return_last_frame | boolean | No | Also return the last frame as a still — useful for chaining clips. Seedance only |
 
 #### Request Examples
 
@@ -120,6 +126,8 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 
 ## Pricing
 
+### Base Price (720p default)
+
 | Model | Price | Notes |
 |-------|-------|-------|
 | azure/sora-2 | $0.10/sec | 720p + synced audio, 4/8/12s clips |
@@ -128,6 +136,21 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 | bytedance/seedance-2.0-pro | $1.49/5s | Highest quality, supports RealFace |
 | Virtual Portrait enrollment | $0.01 (one-time) | See /docs/api/realface |
 | RealFace enrollment | $0.01 (one-time) | See /docs/api/realface |
+
+### Resolution Multiplier (Seedance)
+
+Higher resolutions consume more tokens upstream. Approximate cost examples for Seedance 2.0 Pro:
+
+| Resolution | Duration | Estimated Cost |
+|------------|----------|----------------|
+| 720p | 5s | ~$1.49 |
+| 720p | 15s | ~$4.47 |
+| 4K | 5s | ~$14.35 |
+| 4K | 15s | ~$43.04 |
+
+::: tip
+4K generation costs approximately 9.6× the 720p base price due to upstream token scaling. Use `720p` for drafts and iterate before committing to high-resolution renders.
+:::
 ## Code Examples
 
 ::: code-group
@@ -313,7 +336,7 @@ func main() {
 - Seedance 1.5 Pro does NOT support real_face_asset_id — use 2.0 Fast or 2.0 Pro for character-consistent video
 - image_url and real_face_asset_id are mutually exclusive — use one or the other, not both
 - Generation takes 60-180 seconds — use async polling, not synchronous waiting
-- Maximum duration: Seedance 5-10s per clip, Sora 4/8/12s per clip
+- Maximum duration: Seedance 5-15s per clip, Sora 4/8/12s per clip
 - Output resolution fixed at 720p (1280x720) — no 1080p or 4K
 - RealFace enrollment required separately via /docs/api/realface before using real_face_asset_id
 - Job results (MP4 URLs) are retrievable for 48 hours after submission — even if your client disconnects
