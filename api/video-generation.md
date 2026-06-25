@@ -4,7 +4,7 @@ outline: deep
 
 # Video Generation API
 
-Generate AI videos from text prompts or images. Three input modes: text-to-video, image-to-video (animate a photo), and character-consistent video (via RealFace/Virtual Portrait asset_id). Models: Sora 2 (4/8/12s, $0.10/s), Seedance 1.5 Pro ($0.46/5s, image-to-video only), Seedance 2.0 Fast ($1.19/5s, supports RealFace), Seedance 2.0 Pro ($1.49/5s, highest quality). Async workflow: submit → poll → get MP4 URL.
+Generate AI videos from text prompts or images. Three input modes: text-to-video, image-to-video (animate a photo), and character-consistent video (via RealFace/Virtual Portrait asset_id). Models: Sora 2 (4/8/12s, $0.10/s), Seedance 2.0 ($1.49/5s, highest quality), Seedance 2.0 Fast ($1.19/5s, supports RealFace). Async workflow: submit → poll → get MP4 URL.
 
 **Base URL:** `https://api.jarvisclaw.ai/v1`
 
@@ -33,14 +33,14 @@ Submit a video generation job.
 ```json
 // Text-to-video
 {
-  "model": "bytedance/seedance-2.0-pro",
+  "model": "bytedance/seedance-2.0",
   "prompt": "A cat playing piano in a dimly lit jazz bar",
   "duration_seconds": 5
 }
 
 // Image-to-video (animate a photo)
 {
-  "model": "bytedance/seedance-2.0-pro",
+  "model": "bytedance/seedance-2.0",
   "prompt": "Person waving hello and smiling",
   "image_url": "https://example.com/person-photo.jpg",
   "duration_seconds": 5
@@ -62,7 +62,7 @@ Submit a video generation job.
   "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
   "object": "video.generation.job",
   "status": "queued",
-  "model": "bytedance/seedance-2.0-pro",
+  "model": "bytedance/seedance-2.0",
   "duration_seconds": 5,
   "price": {
     "amount": "1.275372",
@@ -89,7 +89,7 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
   "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
   "status": "in_progress",
   "created_at": 1717200000,
-  "model": "bytedance/seedance-2.0-pro",
+  "model": "bytedance/seedance-2.0",
   "progress": 65,
   "elapsed_seconds": 42
 }
@@ -102,7 +102,7 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
   "id": "bytedance:video_ae260c45bdb7453c8bbe5a47",
   "object": "video.generation.job",
   "status": "completed",
-  "model": "bytedance/seedance-2.0-pro",
+  "model": "bytedance/seedance-2.0",
   "created": 1717200000,
   "data": [
     {
@@ -128,9 +128,8 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 | Model | Price | Notes |
 |-------|-------|-------|
 | azure/sora-2 | $0.10/sec | 720p + synced audio, 4/8/12s clips |
-| bytedance/seedance-1.5-pro | $0.46/5s | Image-to-video only, no RealFace support |
 | bytedance/seedance-2.0-fast | $1.19/5s | 60-80s generation, supports RealFace |
-| bytedance/seedance-2.0-pro | $1.49/5s | Highest quality, supports RealFace |
+| bytedance/seedance-2.0 | $1.49/5s | Highest quality, supports RealFace |
 | Virtual Portrait enrollment | $0.01 (one-time) | See /docs/api/realface |
 | RealFace enrollment | $0.01 (one-time) | See /docs/api/realface |
 
@@ -149,7 +148,6 @@ Higher resolutions consume more tokens upstream. The multiplier scales roughly w
 4K 15s generation costs ~$43 per clip. Use `720p` for drafts and iterate before committing to high-resolution renders.
 
 For Seedance 2.0 Fast, multiply by ~0.80× (base $1.19/5s at 720p).
-For Seedance 1.5 Pro, multiply by ~0.31× (base $0.46/5s at 720p, i2v only).
 :::
 ## Code Examples
 
@@ -160,13 +158,13 @@ For Seedance 1.5 Pro, multiply by ~0.31× (base $0.46/5s at 720p, i2v only).
 curl -X POST https://api.jarvisclaw.ai/v1/videos/generations \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "bytedance/seedance-2.0-pro", "prompt": "A cat playing piano in a jazz bar", "duration_seconds": 5}'
+  -d '{"model": "bytedance/seedance-2.0", "prompt": "A cat playing piano in a jazz bar", "duration_seconds": 5}'
 
 # Image-to-video (animate a photo)
 curl -X POST https://api.jarvisclaw.ai/v1/videos/generations \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "bytedance/seedance-2.0-pro", "prompt": "Person walks forward", "image_url": "https://example.com/photo.jpg", "duration_seconds": 5}'
+  -d '{"model": "bytedance/seedance-2.0", "prompt": "Person walks forward", "image_url": "https://example.com/photo.jpg", "duration_seconds": 5}'
 
 # With RealFace character
 curl -X POST https://api.jarvisclaw.ai/v1/videos/generations \
@@ -186,12 +184,12 @@ video = VideoClient(api_key="sk-your-api-key")
 
 # ─── Blocking mode (SDK auto-polls, default 10min timeout) ───
 job = video.generate("A cat playing piano in a jazz bar",
-    model="bytedance/seedance-2.0-pro", duration=5)
+    model="bytedance/seedance-2.0", duration=5)
 print(f"Video URL: {job.url}")
 
 # Image-to-video (animate a photo)
 job = video.generate("Person waving hello",
-    model="bytedance/seedance-2.0-pro",
+    model="bytedance/seedance-2.0",
     image_url="https://example.com/photo.jpg", duration=5)
 print(f"Video URL: {job.url}")
 
@@ -224,7 +222,7 @@ video = VideoClient(private_key="0x<evm-private-key>")
 
 # Blocking (auto-polls until done, no charge until "completed")
 job = video.generate("A cat playing piano in a jazz bar",
-    model="bytedance/seedance-2.0-pro", duration=5)
+    model="bytedance/seedance-2.0", duration=5)
 print(f"Video URL: {job.url}")
 
 # Non-blocking (submit and retrieve later)
@@ -259,7 +257,7 @@ func main() {
 
     // Text-to-video (blocking — Generate waits by default)
     job, _ := vc.Generate(ctx, "A cat playing piano in a jazz bar",
-        jc.WithVideoModel("bytedance/seedance-2.0-pro"), jc.WithDuration(5))
+        jc.WithVideoModel("bytedance/seedance-2.0"), jc.WithDuration(5))
     fmt.Printf("Video URL: %s\n", job.URL)
 
     // Non-blocking mode
@@ -298,7 +296,7 @@ func main() {
 
     // Text-to-video (blocking — Generate waits by default)
     job, _ := vc.Generate(ctx, "A cat playing piano",
-        jc.WithVideoModel("bytedance/seedance-2.0-pro"), jc.WithDuration(5))
+        jc.WithVideoModel("bytedance/seedance-2.0"), jc.WithDuration(5))
     fmt.Printf("Video URL: %s\n", job.URL)
 
     // Non-blocking mode
@@ -325,15 +323,15 @@ func main() {
 
 | Code | Name | Description | Resolution |
 |------|------|-------------|------------|
-| 400 | invalid_model | Requested video model not available | Use one of: bytedance/seedance-2.0-pro, bytedance/seedance-2.0-fast, bytedance/seedance-1.5-pro, azure/sora-2 |
+| 400 | invalid_model | Requested video model not available | Use one of: bytedance/seedance-2.0, bytedance/seedance-2.0-fast, azure/sora-2 |
 | 400 | invalid_asset_id | real_face_asset_id format invalid or not found | Enroll via /v1/marketplace/realface/enroll first to get a valid ta_xxx ID |
-| 400 | model_asset_incompatible | real_face_asset_id used with Seedance 1.5 Pro (unsupported) | Use Seedance 2.0 Fast or 2.0 Pro for RealFace generation |
+| 400 | model_asset_incompatible | real_face_asset_id used with unsupported model | Use Seedance 2.0 or 2.0 Fast for RealFace generation |
 | 408 | generation_timeout | Video generation exceeded maximum time (5 minutes) | Retry the request — upstream may be under heavy load |
 | 404 | job_not_found | Job ID does not exist or has expired (48h) | Job results are available for 48 hours after submission. After that, re-submit. |
 
 ## Limitations
 
-- Seedance 1.5 Pro does NOT support real_face_asset_id — use 2.0 Fast or 2.0 Pro for character-consistent video
+- Seedance 2.0 Fast and Seedance 2.0 both support real_face_asset_id for character-consistent video
 - image_url and real_face_asset_id are mutually exclusive — use one or the other, not both
 - Generation takes 60-180 seconds — use async polling, not synchronous waiting
 - Maximum duration: Seedance 5-15s per clip, Sora 4/8/12s per clip
@@ -452,7 +450,7 @@ Take any static image (photo, illustration, screenshot) and animate it into a vi
 curl -X POST https://api.jarvisclaw.ai/v1/videos/generations \
   -H "Authorization: Bearer sk-your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"model": "bytedance/seedance-2.0-pro", "prompt": "The person turns and smiles at the camera", "image_url": "https://example.com/portrait.jpg", "duration_seconds": 5}'
+  -d '{"model": "bytedance/seedance-2.0", "prompt": "The person turns and smiles at the camera", "image_url": "https://example.com/portrait.jpg", "duration_seconds": 5}'
 ```
 
 ```python
@@ -461,7 +459,7 @@ from jarvisclaw import VideoClient
 video = VideoClient(private_key="0x<evm-private-key>")
 
 job = video.generate("The person turns and smiles at the camera",
-    model="bytedance/seedance-2.0-pro",
+    model="bytedance/seedance-2.0",
     image_url="https://example.com/portrait.jpg",
     duration=5)
 print(f"Job submitted: {job.id}")
