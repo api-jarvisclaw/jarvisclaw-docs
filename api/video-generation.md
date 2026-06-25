@@ -341,6 +341,45 @@ func main() {
 - RealFace enrollment required separately via /docs/api/realface before using real_face_asset_id
 - Job results (MP4 URLs) are retrievable for 48 hours after submission — even if your client disconnects
 - Status sync lag: upstream may report "in_progress" for a few minutes after actual completion — keep polling, do not cancel early
+### 4K Resolution Example
+
+Generate 4K resolution video using `bytedance/seedance-2.0`. Pass `resolution: "4K"` in the request body. Note that 4K output costs significantly more than the default 720p (see Pricing).
+
+```bash
+curl -X POST https://api.jarvisclaw.ai/v1/videos/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "bytedance/seedance-2.0", "prompt": "", "duration_seconds": 5, "resolution": "4K"}'
+```
+
+```python
+import os, time, requests
+
+API_KEY = os.environ["JARVISCLAW_API_KEY"]
+BASE_URL = "https://api.jarvisclaw.ai/v1"
+
+resp = requests.post(f"{BASE_URL}/videos/generations",
+    headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
+    json={"model": "bytedance/seedance-2.0", "prompt": "", "duration_seconds": 5, "resolution": "4K"},
+    timeout=60)
+data = resp.json()
+job_id = data["id"]
+poll_url = f"{BASE_URL}/videos/generations/{requests.utils.quote(job_id, safe='')}"
+
+# Poll until completed (max 10 min)
+while True:
+    time.sleep(10)
+    poll = requests.get(poll_url, headers={"Authorization": f"Bearer {API_KEY}"}, timeout=30).json()
+    if poll["status"] == "completed":
+        print(f"Video URL: {poll['data'][0]['url']}")
+        break
+    elif poll["status"] == "failed":
+        print(f"Failed: {poll}")
+        break
+```
+
+> Full test script with logging and download: [`tests/python/test_seedance_4k.py`](../tests/python/test_seedance_4k.py)
+
 ## Guides
 
 ### Async Polling & Timeout Handling
