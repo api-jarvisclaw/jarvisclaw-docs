@@ -52,6 +52,8 @@ export default defineConfig({
         text: 'Agent Economy',
         items: [
           { text: 'Intent Resolution (AIP)', link: '/agent-economy' },
+          { text: 'AIP Usage Guide', link: '/docs/aip-usage' },
+          { text: 'AIP Protocol Spec', link: '/docs/aip-spec' },
           { text: 'Wallet & Treasury', link: '/wallet-treasury' },
         ],
       },
