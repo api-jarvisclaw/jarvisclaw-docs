@@ -106,6 +106,7 @@ Flat per-video pricing.
 |-------|---------------|-------|
 | `bytedance/seedance-2.0` | $0.319 | Highest quality, supports RealFace |
 | `bytedance/seedance-2.0-fast` | $0.255 | Fast generation, supports RealFace |
+| `bytedance/seedance-1.5-pro` | $0.098 | Image-to-video only |
 | `azure/sora-2` | $0.10/sec | 720p + audio, 4/8/12s |
 | `xai/grok-imagine-video` | $0.05 | xAI video |
 

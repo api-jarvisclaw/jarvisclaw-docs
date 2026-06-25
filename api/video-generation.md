@@ -4,7 +4,7 @@ outline: deep
 
 # Video Generation API
 
-Generate AI videos from text prompts or images. Three input modes: text-to-video, image-to-video (animate a photo), and character-consistent video (via RealFace/Virtual Portrait asset_id). Models: Sora 2 (4/8/12s, $0.10/s), Seedance 2.0 ($1.49/5s, highest quality), Seedance 2.0 Fast ($1.19/5s, supports RealFace). Async workflow: submit → poll → get MP4 URL.
+Generate AI videos from text prompts or images. Three input modes: text-to-video, image-to-video (animate a photo), and character-consistent video (via RealFace/Virtual Portrait asset_id). Models: Sora 2 (4/8/12s, $0.10/s), Seedance 1.5 Pro ($0.46/5s, image-to-video only), Seedance 2.0 ($1.49/5s, highest quality), Seedance 2.0 Fast ($1.19/5s, supports RealFace). Async workflow: submit → poll → get MP4 URL.
 
 **Base URL:** `https://api.jarvisclaw.ai/v1`
 
@@ -130,6 +130,7 @@ Poll video generation job status. Call every 5-10s until status is "completed" o
 | azure/sora-2 | $0.10/sec | 720p + synced audio, 4/8/12s clips |
 | bytedance/seedance-2.0-fast | $1.19/5s | 60-80s generation, supports RealFace |
 | bytedance/seedance-2.0 | $1.49/5s | Highest quality, supports RealFace |
+| bytedance/seedance-1.5-pro | $0.46/5s | Image-to-video only, no RealFace support |
 | Virtual Portrait enrollment | $0.01 (one-time) | See /docs/api/realface |
 | RealFace enrollment | $0.01 (one-time) | See /docs/api/realface |
 
@@ -148,6 +149,7 @@ Higher resolutions consume more tokens upstream. The multiplier scales roughly w
 4K 15s generation costs ~$43 per clip. Use `720p` for drafts and iterate before committing to high-resolution renders.
 
 For Seedance 2.0 Fast, multiply by ~0.80× (base $1.19/5s at 720p).
+For Seedance 1.5 Pro, multiply by ~0.31× (base $0.46/5s at 720p, i2v only).
 :::
 ## Code Examples
 
@@ -323,15 +325,15 @@ func main() {
 
 | Code | Name | Description | Resolution |
 |------|------|-------------|------------|
-| 400 | invalid_model | Requested video model not available | Use one of: bytedance/seedance-2.0, bytedance/seedance-2.0-fast, azure/sora-2 |
+| 400 | invalid_model | Requested video model not available | Use one of: bytedance/seedance-2.0, bytedance/seedance-2.0-fast, bytedance/seedance-1.5-pro, azure/sora-2 |
 | 400 | invalid_asset_id | real_face_asset_id format invalid or not found | Enroll via /v1/marketplace/realface/enroll first to get a valid ta_xxx ID |
-| 400 | model_asset_incompatible | real_face_asset_id used with unsupported model | Use Seedance 2.0 or 2.0 Fast for RealFace generation |
+| 400 | model_asset_incompatible | real_face_asset_id used with Seedance 1.5 Pro (unsupported) | Use Seedance 2.0 or 2.0 Fast for RealFace generation |
 | 408 | generation_timeout | Video generation exceeded maximum time (5 minutes) | Retry the request — upstream may be under heavy load |
 | 404 | job_not_found | Job ID does not exist or has expired (48h) | Job results are available for 48 hours after submission. After that, re-submit. |
 
 ## Limitations
 
-- Seedance 2.0 Fast and Seedance 2.0 both support real_face_asset_id for character-consistent video
+- Seedance 1.5 Pro does NOT support real_face_asset_id — use 2.0 Fast or 2.0 for character-consistent video
 - image_url and real_face_asset_id are mutually exclusive — use one or the other, not both
 - Generation takes 60-180 seconds — use async polling, not synchronous waiting
 - Maximum duration: Seedance 5-15s per clip, Sora 4/8/12s per clip
