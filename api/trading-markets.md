@@ -2,6 +2,17 @@
 
 Real-time price data for traditional markets. 1,746+ equities across 12 global exchanges with ~400ms oracle cadence. Plus 500+ crypto pairs, 30+ forex pairs, and commodities. Stocks $0.001/call; crypto/FX/commodities free.
 
+## Authentication
+
+Both methods are supported — all requests settle via x402 on-chain:
+
+| Method | Header | Description |
+|--------|--------|-------------|
+| API Key | `Authorization: Bearer sk-...` | Platform signs x402 from your HD wallet automatically |
+| Private Key (x402) | Automatic via SDK | Agent signs x402 directly from its own wallet |
+
+See [Agent Payments (x402)](/x402) for full details on how both methods work.
+
 ## Base URL
 
 ```

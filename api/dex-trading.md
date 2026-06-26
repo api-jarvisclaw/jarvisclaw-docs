@@ -2,6 +2,17 @@
 
 Decentralized exchange trading via 0x protocol. Best-execution routing across 100+ DEXes with Permit2 and Gasless V2. Authentication required (API key or x402 payment). You only pay on-chain gas fees for executed swaps — no additional per-call fee from JarvisClaw.
 
+## Authentication
+
+Both methods are supported — all requests settle via x402 on-chain:
+
+| Method | Header | Description |
+|--------|--------|-------------|
+| API Key | `Authorization: Bearer sk-...` | Platform signs x402 from your HD wallet automatically |
+| Private Key (x402) | Automatic via SDK | Agent signs x402 directly from its own wallet |
+
+See [Agent Payments (x402)](/x402) for full details on how both methods work.
+
 ## Base URL
 
 ```

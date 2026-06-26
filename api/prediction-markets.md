@@ -8,6 +8,17 @@ Real-time prediction market data via Predexon. 58 endpoints across 11 categories
 The [Crypto Data (Surf)](/api/crypto-data) API includes 17 prediction market endpoints under `/v1/marketplace/surf/prediction-market/*` at $0.0075/call. This Predexon service is a dedicated prediction-only provider with more endpoints (58 vs 17), deeper data (orderbooks, candlesticks, leaderboards), and lower pricing ($0.001/call GET).
 :::
 
+## Authentication
+
+Both methods are supported — all requests settle via x402 on-chain:
+
+| Method | Header | Description |
+|--------|--------|-------------|
+| API Key | `Authorization: Bearer sk-...` | Platform signs x402 from your HD wallet automatically |
+| Private Key (x402) | Automatic via SDK | Agent signs x402 directly from its own wallet |
+
+See [Agent Payments (x402)](/x402) for full details on how both methods work.
+
 ## Pricing
 
 | Endpoint Type | Price | Description |

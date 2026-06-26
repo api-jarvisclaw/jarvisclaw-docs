@@ -8,6 +8,17 @@ Generate AI videos from text prompts or images. Three input modes: text-to-video
 
 **Base URL:** `https://api.jarvisclaw.ai/v1`
 
+## Authentication
+
+Both methods are supported — all requests settle via x402 on-chain:
+
+| Method | Header | Description |
+|--------|--------|-------------|
+| API Key | `Authorization: Bearer sk-...` | Platform signs x402 from your HD wallet automatically |
+| Private Key (x402) | Automatic via SDK | Agent signs x402 directly from its own wallet |
+
+See [Agent Payments (x402)](/x402) for full details on how both methods work.
+
 ## Endpoints
 
 ### POST /v1/videos/generations

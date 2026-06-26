@@ -6,6 +6,17 @@ AI-powered outbound voice calls (Bland.ai) and wallet-owned phone numbers (Twili
 - Phone numbers & lookups: `https://api.jarvisclaw.ai/v1/marketplace/phone`
 - Voice calls: `https://api.jarvisclaw.ai/v1/marketplace/voice`
 
+## Authentication
+
+Both methods are supported — all requests settle via x402 on-chain:
+
+| Method | Header | Description |
+|--------|--------|-------------|
+| API Key | `Authorization: Bearer sk-...` | Platform signs x402 from your HD wallet automatically |
+| Private Key (x402) | Automatic via SDK | Agent signs x402 directly from its own wallet |
+
+See [Agent Payments (x402)](/x402) for full details on how both methods work.
+
 ## Pricing
 
 | Endpoint | Price | Description |
