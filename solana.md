@@ -139,3 +139,38 @@ The solders library (Solana keypair signing) requires a Rust compiler during pip
 | USDC type | ERC-20 | SPL |
 | Confirmation time | ~2s | ~0.4s |
 | Install command | `pip install jarvisclaw[agent]` | `pip install jarvisclaw[solana]` |
+
+---
+
+## ATA (Associated Token Account) Requirements
+
+Solana SPL tokens (including USDC) require an **Associated Token Account** to exist on-chain before tokens can be transferred. This is different from EVM where any address can receive ERC-20 tokens without setup.
+
+### What this means for x402
+
+- Your Solana wallet must have an initialized USDC ATA before the x402 payment flow can work.
+- The platform performs an ATA pre-check before attempting settlement. If no ATA exists, Solana is skipped and the system falls back to Base (if available).
+- A failed ATA check does **not** consume gas or incur fees — it's a read-only RPC call.
+
+### How to verify your ATA is ready
+
+```python
+from jarvisclaw import ChatClient
+
+client = ChatClient(private_key="<base58-solana-keypair>")
+balance = client.get_balance()
+print(f"Solana USDC: ${balance:.6f}")
+# If this returns a number (even 0), your ATA exists
+```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `transaction_simulation_failed` | ATA not initialized | Send any USDC to your wallet first |
+| Balance shows 0 but ATA exists | Wallet funded with SOL only | Transfer USDC (SPL) to create the token account |
+| Fallback to Base unexpectedly | Solana ATA check failed | Verify ATA exists via Solscan or `get_balance()` |
+
+::: tip
+If you use both chains, the platform automatically picks the one with sufficient balance. Fund both for maximum reliability.
+:::
