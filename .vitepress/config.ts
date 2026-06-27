@@ -73,6 +73,7 @@ export default defineConfig({
           { text: 'Crypto Data (Surf)', link: '/api/crypto-data' },
           { text: 'Phone & Voice', link: '/api/phone-voice' },
           { text: 'Trading Markets', link: '/api/trading-markets' },
+          { text: 'Prompt Coach', link: '/api/prompt-coach' },
           { text: 'RealFace & Portrait', link: '/api/realface' },
           { text: 'Errors', link: '/api/errors' },
         ],
