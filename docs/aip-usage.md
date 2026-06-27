@@ -83,6 +83,7 @@ func ptr[T any](v T) *T { return &v }
 | 语音合成 | `text_to_speech` | TTS 语音输出 |
 | 网页搜索 | `web_search` | 实时网络检索 |
 | 知识检索 | `knowledge_search` | RAG / 向量检索 |
+| Prompt 优化 | `prompt_optimization` | AI 优化你的 prompt ($0.002/次) |
 | 工具调用 | `tool_call` | 执行 MCP 注册的工具 |
 | 自定义 | `x-{vendor}/{type}` | 供应商自定义 intent |
 
@@ -356,6 +357,46 @@ raw, _ := client.Execute(ctx, jc.ExecuteRequest{
     },
 })
 ```
+:::
+
+---
+
+### 8. Prompt 优化 (`prompt_optimization`)
+
+使用 AI 优化你的 prompt，获得更精准的输出。固定费用 $0.002/次。
+
+::: code-group
+```python [Python]
+result = client.execute(
+    intent="prompt_optimization",
+    payload={
+        "prompt": "写一个关于AI的文章",
+        "model": "gpt-4o",
+        "context": "用于技术博客，面向开发者受众",
+    },
+)
+optimized = result["result"]["optimized_prompt"]
+suggestions = result["result"]["suggestions"]
+print(f"优化后: {optimized}")
+for s in suggestions:
+    print(f"  💡 {s}")
+```
+```go [Go]
+raw, _ := client.Execute(ctx, jc.ExecuteRequest{
+    Intent: "prompt_optimization",
+    Payload: map[string]any{
+        "prompt":  "写一个关于AI的文章",
+        "model":   "gpt-4o",
+        "context": "用于技术博客，面向开发者受众",
+    },
+})
+// Returns: {"optimized_prompt": "...", "suggestions": [...]}
+fmt.Println(string(raw))
+```
+:::
+
+::: tip 定价
+Prompt 优化固定 $0.002/次，不受 optimize_for 策略影响。
 :::
 
 ---
