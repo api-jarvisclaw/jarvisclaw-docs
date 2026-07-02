@@ -8,6 +8,8 @@ Authentication: `Authorization: Bearer sk-your-api-key` or `PAYMENT-SIGNATURE` (
 
 | API | Endpoint | Billing |
 |-----|----------|---------|
+| [Responses API](/api/responses) | POST `/v1/responses` | Per token |
+| [Anthropic Messages](/api/anthropic-messages) | POST `/v1/messages` | Per token |
 | [Chat Completions](/api/chat-completions) | POST `/v1/chat/completions` | Per token |
 | [Image Generation](/api/image-generation) | POST `/v1/images/generations` | Per image |
 | [Video Generation](/api/video-generation) | POST `/v1/videos/generations` | Per video |
