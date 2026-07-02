@@ -117,6 +117,153 @@ For long-running tasks (video, music), the SDK sets sensible defaults internally
 | SearchClient | ✅ | ✅ | Base + Solana | Base only |
 | MarketplaceClient | ✅ | ✅ | Base + Solana | Base only |
 
+## Using Official SDKs (Native Protocol)
+
+You can also use the official `openai` and `anthropic` SDKs directly against JarvisClaw — just point the `base_url` to our platform. This gives you full native protocol access (Responses API, Messages API) without any wrapper.
+
+### OpenAI SDK (Responses API + Chat Completions)
+
+::: code-group
+
+```python [Python]
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-jarvisclaw-key",
+    base_url="https://api.jarvisclaw.ai/v1"
+)
+
+# Responses API (recommended)
+response = client.responses.create(
+    model="anthropic/claude-sonnet-4-20250514",
+    input="Explain quantum computing in one paragraph"
+)
+print(response.output_text)
+
+# Chat Completions (legacy)
+resp = client.chat.completions.create(
+    model="openai/gpt-4.1",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(resp.choices[0].message.content)
+```
+
+```go [Go]
+import (
+    "context"
+    "fmt"
+    "github.com/openai/openai-go"
+    "github.com/openai/openai-go/option"
+)
+
+func main() {
+    client := openai.NewClient(
+        option.WithAPIKey("sk-your-jarvisclaw-key"),
+        option.WithBaseURL("https://api.jarvisclaw.ai/v1"),
+    )
+
+    // Responses API
+    resp, _ := client.Responses.New(context.Background(),
+        openai.ResponseNewParams{
+            Model: "anthropic/claude-sonnet-4-20250514",
+            Input: openai.ResponseNewParamsInputUnionString(
+                "Explain quantum computing in one paragraph",
+            ),
+        },
+    )
+    fmt.Println(resp.OutputText)
+}
+```
+
+```bash [curl]
+curl https://api.jarvisclaw.ai/v1/responses \
+  -H "Authorization: Bearer sk-your-jarvisclaw-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "anthropic/claude-sonnet-4-20250514", "input": "Hello!"}'
+```
+
+:::
+
+### Anthropic SDK (Native Messages API)
+
+::: code-group
+
+```python [Python]
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="sk-your-jarvisclaw-key",
+    base_url="https://api.jarvisclaw.ai"
+)
+
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Explain quantum computing"}]
+)
+print(message.content[0].text)
+
+# Streaming
+with client.messages.stream(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Write a haiku"}]
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+```
+
+```go [Go]
+import (
+    "context"
+    "fmt"
+    "github.com/anthropics/anthropic-sdk-go"
+    "github.com/anthropics/anthropic-sdk-go/option"
+)
+
+func main() {
+    client := anthropic.NewClient(
+        option.WithAPIKey("sk-your-jarvisclaw-key"),
+        option.WithBaseURL("https://api.jarvisclaw.ai"),
+    )
+
+    message, _ := client.Messages.New(context.Background(),
+        anthropic.MessageNewParams{
+            Model:     "claude-sonnet-4-20250514",
+            MaxTokens: 1024,
+            Messages: []anthropic.MessageParam{
+                anthropic.NewUserMessage(
+                    anthropic.NewTextBlock("Explain quantum computing"),
+                ),
+            },
+        },
+    )
+    fmt.Println(message.Content[0].Text)
+}
+```
+
+```bash [curl]
+curl https://api.jarvisclaw.ai/v1/messages \
+  -H "x-api-key: sk-your-jarvisclaw-key" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-sonnet-4-20250514",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+:::
+
+::: tip When to use which?
+- **JarvisClaw SDK** — Best for agents, x402 wallet payments, intent routing, budget control
+- **OpenAI SDK (native)** — When you want Responses API features (multi-turn chaining, built-in tools) or drop-in compatibility with existing OpenAI code
+- **Anthropic SDK (native)** — When you need Claude-specific features (prompt caching, extended thinking, native tool_use)
+:::
+
+---
+
 ## Chat & Streaming
 
 Send chat messages and stream responses in real time.
